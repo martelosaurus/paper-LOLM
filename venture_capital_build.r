@@ -45,15 +45,18 @@ if (is.element("venture_capital.RData",list.files())) {
     X[,nleads:=as.integer(sum(lead.vc)),by =.(company.id, round.number)]
     X[,lead.firm:=ifelse(lead.vc==1,firm.name,NA)]
 
+	###
+	save(X,file="jordan_raw.RData")
+	if (FALSE) {
+	###
+
     # remove repeat funds 
     setorder(X,company.id,round.number)
     X=unique(X,by=c("company.id","firm.name"),fromLast=TRUE)
-	print(nrow(X))
 
     # Add cumulative amount and equity (for filtering purposes)
     X[,c("cum.equity","cum.amount"):=lapply(.(equity.total,amount),cumsum),by=company.id]
     X=subset(X,cum.equity>0)
-	print(nrow(X))
 
     # Figure out if prior round is in, otherwise data is useless
     setkey(X,company.id,round.number)
@@ -63,7 +66,6 @@ if (is.element("venture_capital.RData",list.files())) {
     X[,prior.valuation:=shift(valuation,type="lag"),by=company.id]
     X[,round.Return:=nafix(valuation.adj/prior.valuation,1L)]
     X[,cum.Return:=cumprod(round.Return),by=company.id]
-	print(nrow(X))
 
     # compute lagged values
     setkey(X,company.id,round.number)
@@ -73,18 +75,17 @@ if (is.element("venture_capital.RData",list.files())) {
     X[,yearChange:=year(investment.date)]
     X[,yearFirst:=year(prior.lead.date)]
 	print("compute lagged values")
-	print(nrow(X))
 
     # define log-logret
     X=subset(X,!is.na(valuation.adj)&!is.na(prior.valuation))
     X=subset(X,cum.Return>0&prior.cum.Return>0)
     X[,logret:=log(cum.Return/prior.cum.Return)] 
-	print(nrow(X))
     
     # define duration
     X[,duration:=as.numeric(investment.date-prior.lead.date)/365]
     X=subset(X,duration>0)
-	print(nrow(X))
 
-    #save(X,file="venture_capital.RData")
+    save(X,file="venture_capital.RData")
 }
+}
+
