@@ -94,7 +94,6 @@ setkey(dt_vca, company.id, round.number)
 ## Clean data
 #######
 
-save(dt_vca,file="brian_part0.RData")
 ## Drop missing company id
 dt_vca = dt_vca[company.id != "-"]
 
@@ -112,7 +111,6 @@ dt_vca = dt_vca[amount>0]
 dt_vca[, equity.total := sum(equity.invested, na.rm=TRUE), 
        by = .(company.id, round.number)]
 
-save(dt_vca,file="brian_part1.RData")
 
 ## Collapse on company/round/firm/
 #dt_vca = dt_vca[, .(company.name, company.id, round.number, investment.date,
@@ -144,6 +142,8 @@ dt_vca[, lead.vc := ifelse(cum.inv.by.firm == max.cum.inv.cum & cum.inv.by.firm 
 ## Multiple leads, put in multiple columns (max 6)
 dt_vca[, nleads := as.integer(sum(lead.vc)), by = .(company.id, round.number)]
 dt_vca[, lead.firm := ifelse(lead.vc == 1L,firm.name,NA)]
+
+print(nrow(dt_vca))
 
 dt_vca[nleads >= 1L, lead.firm.1 := na.exclude(unique(lead.firm))[1], by = .(company.id, round.number)]
 dt_vca[nleads >= 2L, lead.firm.2 := na.exclude(unique(lead.firm))[2], by = .(company.id, round.number)]
