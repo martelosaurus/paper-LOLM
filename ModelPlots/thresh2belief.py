@@ -1,4 +1,6 @@
-def thresh2belief(tt,st,ns,b0,lam0,mu_H,mu_L,sig)
+import numpy as np
+
+def thresh2belief(tt,st,ns,b0,lam0,mu_H,mu_L,sig):
 	"""
 	thresh2price maps a selling threshold to buyers' belief. It assumes 
 	that sellers' beliefs converge in finite time (t=Tf): sellers' private 
@@ -22,62 +24,57 @@ def thresh2belief(tt,st,ns,b0,lam0,mu_H,mu_L,sig)
 
 	bb : vector
 		Buyers' belief
-	   
-	Notes
-	----------
-	I return the buyers' belief rather than the price.
 	"""
 
     # new parameters
-    phi = (mu_H-mu_L)/sig;
-    mub = (mu_H+mu_L)/2;
+    phi = (mu_H-mu_L)/sig
+    mub = (mu_H+mu_L)/2
 
     # number of time steps
-    nt = length(tt);
-    dt = tt(nt)/(nt-1);
+    nt = len(tt)
+    dt = tt(nt)/(nt-1)
     
     # reshape input
-    tt = reshape(tt,1,nt);
-    TT = repmat(tt,ns,1); 
-    st = reshape(st,1,nt);
-    BB = b0*ones(ns,nt);
+    tt = reshape(tt,1,nt)
+    TT = repmat(tt,ns,1) 
+    st = reshape(st,1,nt)
+    BB = b0*ones(ns,nt)
     
-    # each row is a separate simulationclear all;
-    st(end) = st(end-1); # this comes out as NaN for some reason
-    ST = repmat(st,ns,1); # tile the threshold vector
+    # each row is a separate simulation
+    st[-1] = st[-2] # this comes out as NaN for some reason
+    ST = repmat(st,ns,1) # tile the threshold vector
     
-    def Gamma(mu)
+    def Gamma(mu):
         
         # stuff
-        BM = sqrt(dt)*cumsum(randn(ns,nt),2);
-        CF = mu*TT+sig*BM; 
+        BM = (np.sqrt(dt)*np.random.rand(ns,nt)).cumsum(1)
+        CF = mu*TT+sig*BM 
         
         # beliefs
         for j = 1:(nt-1)
-            BB(:,j+1) = BB(:,j)+BB(:,j).*(1-BB(:,j)).*(phi/sig)...
-                .*(CF(:,j+1)-CF(:,j)-(BB(:,j)*mu_H+(1-BB(:,j))*mu_L)*dt);
-        end
+            BB[:,j+1] = (BB[:,j]+BB[:,j]*(1-BB[:,j])*(phi/sig)*
+                (CF[:,j+1]-CF[:,j]-(BB[:,j]*mu_H+(1-BB[:,j])*mu_L)*dt))
             
         # stopping times
-        TEMP = cumprod(BB>=ST,2);
-        stops = tt(sum(TEMP,2));
-        stops = stops(stops<tt(end));
+        TEMP = (BB>=ST).cumprod(1)
+        stops = tt[sum(TEMP,2)]
+        stops = stops[stops<tt[-1]]
         
         # CDF, PDF, and hazard rate
-        Gam = 1-mean(TEMP,1);
-        gam = ksdensity(stops,tt);
-        gam = gam*(Gam(end));
-        lam = gam./(1-Gam);
+        Gam = 1-mean(TEMP,1)
+        gam = ksdensity(stops,tt)
+        gam = gam*(Gam(end))
+        lam = gam./(1-Gam)
         
-		return [Gam,gam,lam]
+		return Gam,gam,lam
 
     # distributions for H and L
-    [Gam_H,gam_H,lam_H] = Gamma(mu_H);
-    [Gam_L,gam_L,lam_L] = Gamma(mu_L);
+    Gam_H,gam_H,lam_H = Gamma(mu_H)
+    Gam_L,gam_L,lam_L = Gamma(mu_L)
 
     # beliefs
-    bb = b0*(gam_H+(1-Gam_H)*lam0)...
-        ./(b0*(gam_H+(1-Gam_H)*lam0)+(1-b0)*(gam_L+(1-Gam_L)*lam0));
+    bb = (b0*(gam_H+(1-Gam_H)*lam0)/
+        (b0*(gam_H+(1-Gam_H)*lam0)+(1-b0)*(gam_L+(1-Gam_L)*lam0)))
   
-	return [bb,Gam_H,gam_H,lam_H,Gam_L,gam_L,lam_L]
+	return bb,Gam_H,gam_H,lam_H,Gam_L,gam_L,lam_L
 
