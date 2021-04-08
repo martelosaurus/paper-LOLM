@@ -17,18 +17,20 @@ if (is.element("venture_capital.RData",list.files())) {
 
 	# load data
 	X = data.table(read.csv("venture_capital_raw.csv"))    
+	save(X,file="jordan_part0.RData")
 
     # clean-up
     as.numeric.plus=function(v) ifelse(v=="-",NA,as.numeric(v))
     vars=c("amount","valuation","equity.invested")
-    X[,paste(vars):=lapply(.SD[,vars,with=FALSE],as.numeric.plus)]
+    #X[,paste(vars):=lapply(.SD[,vars,with=FALSE],as.numeric.plus)]
+    X[,paste(vars):=lapply(.SD[,vars,with=FALSE],as.numeric)]
     #X=subset(X,!is.na(amount)&amount>0&!is.na(valuation))	
     X=subset(X,!is.na(amount)&amount>0)	
 
     # total equity invested in each round
     X[,equity.total:=sum(equity.invested,na.rm=TRUE),by=.(company.id, round.number)]
 
-	save(X,file="jordan_part.RData")
+	save(X,file="jordan_part1.RData")
 	if (FALSE) {
 
     # cumulative total investment by firm

@@ -94,6 +94,7 @@ setkey(dt_vca, company.id, round.number)
 ## Clean data
 #######
 
+save(dt_vca,file="brian_part0.RData")
 ## Drop missing company id
 dt_vca = dt_vca[company.id != "-"]
 
@@ -111,7 +112,7 @@ dt_vca = dt_vca[amount>0]
 dt_vca[, equity.total := sum(equity.invested, na.rm=TRUE), 
        by = .(company.id, round.number)]
 
-save(dt_vca,file="brian_part.RData")
+save(dt_vca,file="brian_part1.RData")
 
 ## Collapse on company/round/firm/
 #dt_vca = dt_vca[, .(company.name, company.id, round.number, investment.date,
