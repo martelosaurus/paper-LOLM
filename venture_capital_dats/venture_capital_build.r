@@ -22,10 +22,14 @@ if (is.element("venture_capital.RData",list.files())) {
     as.numeric.plus=function(v) ifelse(v=="-",NA,as.numeric(v))
     vars=c("amount","valuation","equity.invested")
     X[,paste(vars):=lapply(.SD[,vars,with=FALSE],as.numeric.plus)]
-    X=subset(X,!is.na(amount)&amount>0&!is.na(valuation))	
+    #X=subset(X,!is.na(amount)&amount>0&!is.na(valuation))	
+    X=subset(X,!is.na(amount)&amount>0)	
 
     # total equity invested in each round
     X[,equity.total:=sum(equity.invested,na.rm=TRUE),by=.(company.id, round.number)]
+
+	save(X,file="jordan_part.RData")
+	if (FALSE) {
 
     # cumulative total investment by firm
     setkey(X,company.id,round.number,firm.name)
@@ -44,11 +48,6 @@ if (is.element("venture_capital.RData",list.files())) {
     # multiple lead VCs
     X[,nleads:=as.integer(sum(lead.vc)),by =.(company.id, round.number)]
     X[,lead.firm:=ifelse(lead.vc==1,firm.name,NA)]
-
-	###
-	save(X,file="jordan_raw.RData")
-	if (FALSE) {
-	###
 
     # remove repeat funds 
     setorder(X,company.id,round.number)

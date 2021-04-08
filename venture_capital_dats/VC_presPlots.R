@@ -86,8 +86,6 @@ for(fn in list.files()) {
 
 setkey(dt_vca, company.id, round.number)
 
-save(dt_vca,file="brian_raw1.RData")
-
 ##################################################
 ## ----------- 3. Data Handling --------------- ##
 ##################################################
@@ -112,6 +110,8 @@ dt_vca = dt_vca[amount>0]
 # dt_vca = dt_vca[fund.name!="Undisclosed Fund"] ## Drop undisclosed firm - treat as if this amount is unreported
 dt_vca[, equity.total := sum(equity.invested, na.rm=TRUE), 
        by = .(company.id, round.number)]
+
+save(dt_vca,file="brian_part.RData")
 
 ## Collapse on company/round/firm/
 #dt_vca = dt_vca[, .(company.name, company.id, round.number, investment.date,
@@ -143,10 +143,6 @@ dt_vca[, lead.vc := ifelse(cum.inv.by.firm == max.cum.inv.cum & cum.inv.by.firm 
 ## Multiple leads, put in multiple columns (max 6)
 dt_vca[, nleads := as.integer(sum(lead.vc)), by = .(company.id, round.number)]
 dt_vca[, lead.firm := ifelse(lead.vc == 1L,firm.name,NA)]
-
-###
-save(dt_vca,file="brian_raw2.RData")
-###
 
 dt_vca[nleads >= 1L, lead.firm.1 := na.exclude(unique(lead.firm))[1], by = .(company.id, round.number)]
 dt_vca[nleads >= 2L, lead.firm.2 := na.exclude(unique(lead.firm))[2], by = .(company.id, round.number)]
@@ -334,5 +330,5 @@ X[,T.purchase.yq:=factor(year(investment.date)):factor(quarter(investment.date))
 X[,c("prior.lead.date","investment.date"):=NULL]
 setnames(X,c("durationYear","ln_Return"),c("duration","logret"))
 Y = X
-save(Y,file="venture_capital.RData")
+#save(Y,file="venture_capital.RData")
 #JORDAN
