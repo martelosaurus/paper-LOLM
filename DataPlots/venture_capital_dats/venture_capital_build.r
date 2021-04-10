@@ -15,15 +15,32 @@ if (is.element("venture_capital.RData",list.files())) {
 	load("venture_capital.RData")
 } else {
 
-	# load data
-	X = data.table(read.csv("venture_capital_raw.csv"))    
 
-    # clean-up
-    X=subset(X,company.id!="-")
-    vars=c("amount","valuation","equity.invested")
-    X[,paste(vars):=lapply(.SD[,vars,with=FALSE],as.numeric)]
-    X=subset(X,!is.na(amount))
-    X=subset(X,amount>0)
+	# load data
+	X = data.table(read.csv("venture_capital_raw.csv"))
+	setkey(X,company.id,round.number)
+	if (FALSE) {
+	X=subset(X,company.id!="-")
+	vars=c("amount","valuation","equity.invested")
+	X[,paste(vars):=lapply(.SD[,vars,with=FALSE],as.numeric)]
+	X=subset(X,!is.na(amount))
+	X=subset(X,amount>0)
+	}
+
+	## Drop missing company id
+	X = X[company.id != "-"]
+
+	## Column types
+	X[, amount := as.numeric(amount)]
+	X[, valuation := as.numeric(valuation)]
+	X[, equity.invested := as.numeric(equity.invested)]
+
+	## Drop missing round investment amount
+	X = X[!is.na(amount)]
+	X = X[amount>0]
+
+	print(nrow(X))
+	if (FALSE) {
 
     # total equity invested in each round
     X[,equity.total:=sum(equity.invested,na.rm=TRUE),by=.(company.id,round.number)]
@@ -45,9 +62,6 @@ if (is.element("venture_capital.RData",list.files())) {
     # multiple lead VCs
     X[,nleads:=as.integer(sum(lead.vc)),by =.(company.id, round.number)]
     X[,lead.firm:=ifelse(lead.vc==1,firm.name,NA)]
-
-	print(nrow(X))
-	if (FALSE) {
 
     # remove repeat funds 
     setorder(X,company.id,round.number)

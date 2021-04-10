@@ -1,4 +1,5 @@
 import numpy as np
+from scipy import stats
 
 def thresh2belief(tt,st,ns,b0,lam0,mu_H,mu_L,sig):
     """
@@ -21,7 +22,6 @@ def thresh2belief(tt,st,ns,b0,lam0,mu_H,mu_L,sig):
         Flow utility from an L-type asset
     sig  : float
         Signal volatility
-
     bb : vector
         Buyers' belief
     """
@@ -41,8 +41,8 @@ def thresh2belief(tt,st,ns,b0,lam0,mu_H,mu_L,sig):
     BB = b0*ones(ns,nt)
     
     # each row is a separate simulation
-    st[-1] = st[-2] # this comes out as NaN for some reason
-    ST = repmat(st,ns,1) # tile the threshold vector
+    st[-1] = st[-2] 		# this comes out as NaN for some reason
+    ST = repmat(st,ns,1) 	# tile the threshold vector
     
     def Gamma(mu):
         
@@ -61,20 +61,19 @@ def thresh2belief(tt,st,ns,b0,lam0,mu_H,mu_L,sig):
         stops = stops[stops<tt[-1]]
         
         # CDF, PDF, and hazard rate
-        Gam = 1-mean(TEMP,1)
-        gam = ksdensity(stops,tt)
-        gam = gam*(Gam(end))
-        lam = gam/(1-Gam)
+        Gam	= 1-mean(TEMP,1)
+        kde = stats.gaussian_kde(stops)
+		gam = kde(tt)*Gam[-1]
         
-        return Gam,gam,lam
+        return Gam,gam
 
     # distributions for H and L
-    Gam_H,gam_H,lam_H = Gamma(mu_H)
-    Gam_L,gam_L,lam_L = Gamma(mu_L)
+    Gam_H, gam_H = Gamma(mu_H)
+    Gam_L, gam_L = Gamma(mu_L)
 
     # beliefs
     bb = (b0*(gam_H+(1-Gam_H)*lam0)/
         (b0*(gam_H+(1-Gam_H)*lam0)+(1-b0)*(gam_L+(1-Gam_L)*lam0)))
   
-    return bb,Gam_H,gam_H,lam_H,Gam_L,gam_L,lam_L
+    return bb,Gam_H,gam_H,Gam_L,gam_L
 

@@ -83,7 +83,7 @@ for(fn in list.files()) {
 
     }
 }
-
+write.csv(dt_vca,file="braw.csv",row.names=FALSE)
 setkey(dt_vca, company.id, round.number)
 
 ##################################################
@@ -93,6 +93,7 @@ setkey(dt_vca, company.id, round.number)
 #######
 ## Clean data
 #######
+
 
 ## Drop missing company id
 dt_vca = dt_vca[company.id != "-"]
@@ -106,6 +107,8 @@ dt_vca[, equity.invested := as.numeric(equity.invested)]
 dt_vca = dt_vca[!is.na(amount)]
 dt_vca = dt_vca[amount>0]
 
+print(nrow(dt_vca))
+if (FALSE) {
 ## Calculate total investment per round reported at fund level (used for comparison with fund round amount)
 # dt_vca = dt_vca[fund.name!="Undisclosed Fund"] ## Drop undisclosed firm - treat as if this amount is unreported
 dt_vca[, equity.total := sum(equity.invested, na.rm=TRUE), 
@@ -143,7 +146,6 @@ dt_vca[, lead.vc := ifelse(cum.inv.by.firm == max.cum.inv.cum & cum.inv.by.firm 
 dt_vca[, nleads := as.integer(sum(lead.vc)), by = .(company.id, round.number)]
 dt_vca[, lead.firm := ifelse(lead.vc == 1L,firm.name,NA)]
 
-print(nrow(dt_vca))
 
 dt_vca[nleads >= 1L, lead.firm.1 := na.exclude(unique(lead.firm))[1], by = .(company.id, round.number)]
 dt_vca[nleads >= 2L, lead.firm.2 := na.exclude(unique(lead.firm))[2], by = .(company.id, round.number)]
@@ -333,3 +335,4 @@ setnames(X,c("durationYear","ln_Return"),c("duration","logret"))
 Y = X
 #save(Y,file="venture_capital.RData")
 #JORDAN
+}

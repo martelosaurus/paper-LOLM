@@ -1,105 +1,108 @@
+# ------------------------------------------------------------------------------
 import numpy as np
 from matplotlib import pyplot as plt
 from thresh2belief import thresh2belief
 
 # MODEL PARAMETERS
-H   = 1 # high type drift 
-L   = 0 # low type drift
-sig = 1 # volatility
+H   = 1 		# high type drift 
+L   = 0 		# low type drift
+sig = 1 		# volatility
 phi = (H-L)/sig # signal to noise ration
-pie = 0.4 # intensity of liquiidity sale 
-r   = 0.5 # discount rate r*dt
-c   = .1 # transaction cost at time of sale
-T   = 20 # length of time
-x0  = .8 # initial belief
-# flow value multiplied by r below so price need not be divided by r
+pie = 0.4 		# intensity of liquiidity sale 
+r   = 0.5 		# discount rate r*dt
+c   = .1 		# transaction cost at time of sale
+T   = 20 		# length of time
+x0  = .8 		# initial belief
 
-# code parameters 
-N = 20000 # size of time vector
-M = 5000  # size of belief vector
-MAX = 50
-tol = .00001
+# CODE PARAMETERS 
+N = 20000	# size of time vector
+M = 5000 	# size of belief vector
+K = 50
+S = 2000	# number of simulations
+a = .00001
 
-# auxiliary functions
+# AUXILIARY FUNCTIONS
 interp_fun = lambda xi,yi,x: np.polyval(np.polyfit(xi,yi,1),x)
 
-# meshsize and grid
+# MESHSIZE AND GRID
 dx = 1/(1+M)
 dt = T/(1+N)
-xgrid = np.linspace(0,1,M+1) 
-tgrid = np.linspace(0,T,N+1)
+x = np.linspace(0,1,M+1) 
+t = np.linspace(0,T,N+1)
 
-# guesses
-lBound_guess = x0*np.ones(N+1)
-p = (x0*H+(1-x0)*L-c)*np.ones(N+1) 
+# GUESSES
+_bB	= x0*np.ones(N+1)
+p	= (x0*H+(1-x0)*L-c)*np.ones(N+1) 
 
-# main loop
-for loop in range(1,MAX):
+# BOUNDARY ITERATION
+for k in range(1,K):
 
-	Vmat = np.zeros((M+1, N+1)) # value function for each belief at each time 
+	# INITIALIZE VALUE FUNCTION, BELIEF BOUNDARY, VALUE AT BELIEF BOUNDARY
+	V 	= np.zeros((M+1, N+1)) 	# value function: row each belief; col each time
+	bB 	= np.zeros(N+1) 		# belief boundary
+	vB 	= np.zeros(N+1) 		# value function at boundary belief
 
-	lBound = np.zeros(N+1) # belief boundary
-	vBound = np.zeros(N+1) # value function at boundary belief
+	# TERMINAL VALUE
+	v1 	= (x*r*H+(1-x)*r*L+pie*p[-1])/(r+pie) 	# keep asset forever
+	p1 	= p[-1]*np.ones(M+1) 					# choose the last price
+	V[:,-1] = np.max([v1,p1],0) 				# terminal value
 
-	# terminal value
-	v1 = (xgrid*r*H+(1-xgrid)*r*L+pie*p[-1])/(r+pie) # keep asset forever
-	p1 = p[-1]*np.ones(M+1) # choose the last price
-	Vmat[:,-1] = np.max([v1,p1],0) 
+	# STEP BACK FROM TERMINAL TIME
+	for n in range(0,N):
 
-	# stepIdx = 1 # stepIdx = 2 # stepIdx = 3 # stepIdx = floor(N/4) 
-	for stepIdx in range(1,N):
+		# EXPECTED CONTINUATION VALUE
+		Vup = interp_fun(x,V[:,-(n+1)],x+phi*x*(1-x)*np.sqrt(dt)) 
+		Vdn = interp_fun(x,V[:,-(n+1)],x-phi*x*(1-x)*np.sqrt(dt))
+		Vex = .5*Vup+.5*Vdn	
 		
-		upval = xgrid+phi*1*xgrid*(1-xgrid)*np.sqrt(dt) # up part 
-		dnval = xgrid-phi*1*xgrid*(1-xgrid)*np.sqrt(dt) # dn part 
+		# SELLER OPTIMALLY CHOOSES WHETHER TO SELL OR CONTINUE
+		v1 = dt*(x*r*H+(1-x)*r*L)				# expected drift
+		v2 = pie*dt*p[-n]*np.ones(M+1)			# liquidity sale
+		v3 = (1-pie*dt)*(1-r*dt)*Vex			# continuation value
+		vv = v1+v2+v3
+		vval = np.max([p[-n]*np.ones(M+1),v1+v2+v3],0)
 
-		# interpolate value if falls between discrete beliefs 
-		VupContval = interp_fun(xgrid, Vmat[:,-1-stepIdx+1], upval) 
-		VdnContval = interp_fun(xgrid, Vmat[:,-1-stepIdx+1], dnval)
+		# INDICES OF X VALUES AT WHICH YOU CONTINUE; A IS SMOOTHING ADJUSTMENT
+		contV = (vval<p[-n]*np.ones(M+1)+a) 
 		
-		V_cont = (VupContval+VdnContval)/2 
-	   
-		# seller optimally chooses whether to sell or continue
-		_p = p[-1-stepIdx]*np.ones(M+1)
-		_v = dt*(xgrid*r*H+(1-xgrid)*r*L)+ pie*dt*p[-1-stepIdx+1]*np.ones(M+1)+(1-pie*dt)*(1-r*dt)*V_cont
-		vval = np.max([_p,_v],0)
-		# indices of the x values at which you continue (don't sell) - adjust by .001 to smooth over indifference
-		contV = (vval < (p[-1-stepIdx])*np.ones(M+1)+tol) 
-		
-		# fix
+		# BOUNDARY
 		if contV[0]==0:
-			lBound[-1-stepIdx] = xgrid[1] # belief boundary
-			vBound[-1-stepIdx] = vval[1] # value function at boundary belief
+			bB[-1-n] = x[1] # belief boundary
+			vB[-1-n] = vval[1] # value function at boundary belief
 		elif contV[M]==1:
-			lBound[-1-stepIdx] = xgrid[M+1] # belief boundary
-			vBound[-1-stepIdx] = vval[M+1] # value function at boundary belief
+			bB[-1-n] = x[M+1] # belief boundary
+			vB[-1-n] = vval[M+1] # value function at boundary belief
 		else:
 			# belief boundary
 			last = np.max(np.where(contV))
-			lBound[-1-stepIdx] = xgrid[last] # 'last'
+			bB[-1-n] = x[last] # 'last'
 			# value function at boundary belief
-			vBound[-1-stepIdx] = vval[last] # 'last'
+			vB[-1-n] = vval[last] # 'last'
 		
-		Vmat[:,-1-stepIdx] = vval 
+		# update value
+		V[:,-n] = vval 
 
-	lBound[-1]=lBound[-1-1]
-	lBound_guess = (.2*lBound+.8*lBound_guess)
+	# update boundary
+	bB[-1] = bB[-2]
+	bB_guess = (.2*bB+.8*bB_guess)
 
-	bb,Gam_H,gam_H,lam_H,Gam_L,gam_L,lam_L = thresh2belief(tgrid,lBound_guess,20000,x0,pie,H,L,sig) 
+	# given boundary, compute strategies
+	bb,Gam_H,gam_H,Gam_L,gam_L = thresh2belief(t,bB_guess,S,x0,pie,H,L,sig) 
 
-	#bb = x0*(gam_H+(1-Gam_H)*pie)/(x0*(gam_H+(1-Gam_H)*pie)+(1-x0)*(gam_L+(1-Gam_L)*pie)) #construct buyers' beliefs
-
-	p = bb*H + (1-bb)*L - c #construct price from buyers' beliefs
-	p[-1]=H-c
+	# construct price from buyers' beliefs
+	p = bb*H + (1-bb)*L - c 
+	p[-1] = H-c
 
 # compute pdf and cdf
-pdf = np.exp(-pie*tgrid)*(x0*(gam_H+(1-Gam_H)*pie)+(1-x0)*(gam_L+(1-Gam_L)*pie)) #ex ante probability of sale at t
-cdf = 1-np.exp(-pie*tgrid) + np.exp(-pie*tgrid)*(x0*Gam_H+(1-x0)*Gam_L)
-cdf2 = (pdf*dt).cumsum() #to confirm that pdf and cdf seem correct - should be case that cdf=cdf2
+pdf = np.exp(-pie*t)*(x0*(gam_H+(1-Gam_H)*pie)+(1-x0)*(gam_L+(1-Gam_L)*pie)) 
+cdf = 1-np.exp(-pie*t) + np.exp(-pie*t)*(x0*Gam_H+(1-x0)*Gam_L)
+cdf2 = (pdf*dt).cumsum() # confirmation
 haz = pdf/(1-cdf)
 
+# split pdf
+pdfLiquidity = np.exp(-pie*t)*(x0*gam_H+(1-x0)*gam_L)
+pdfStrategic = np.exp(-pie*t)*(x0*(1-Gam_H)+(1-x0)*(1-Gam_L))*pie
+
 # plot
-plot(tgrid,[vBound,p])
-plot(xgrid,Vmat[:,1000],xgrid,p[1000]*np.ones(1,M+1))
-pdfLiq = np.exp(-pie*tgrid)*(x0*gam_H+(1-x0)*gam_L)
-pdfStrat = np.exp(-pie*tgrid)*(x0*(1-Gam_H)+(1-x0)*(1-Gam_L))*pie
-plot(tgrid,gam_H,tgrid,gam_L,tgrid,x0*gam_H+(1-x0)*gam_L)
+plt.plot(t,[vB,p])
+plt.plot(t,gam_H,t,gam_L,t,x0*gam_H+(1-x0)*gam_L)
