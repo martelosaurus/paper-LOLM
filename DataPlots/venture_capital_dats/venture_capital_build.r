@@ -1,3 +1,4 @@
+options(stringsAsFactors=FALSE)
 library(data.table) 
 library(mgcv) 
 library(ggplot2) 
@@ -9,6 +10,8 @@ nafix=function(x,f) ifelse(is.na(x),f,x)
 # NOTES:
 #	- "company.id" refers to the company in which VC funds invest
 #	- "firm.name" refers to a VC fund
+#	- The lead VC investor changes when the investor with the greatest
+#	  cumulative investment changes
 
 # load data
 if (is.element("venture_capital.RData",list.files())) {
@@ -19,28 +22,9 @@ if (is.element("venture_capital.RData",list.files())) {
 	# load data
 	X = data.table(read.csv("venture_capital_raw.csv"))
 	setkey(X,company.id,round.number)
-	if (FALSE) {
-	X=subset(X,company.id!="-")
 	vars=c("amount","valuation","equity.invested")
 	X[,paste(vars):=lapply(.SD[,vars,with=FALSE],as.numeric)]
-	X=subset(X,!is.na(amount))
-	X=subset(X,amount>0)
-	}
-
-	## Drop missing company id
-	X = X[company.id != "-"]
-
-	## Column types
-	X[, amount := as.numeric(amount)]
-	X[, valuation := as.numeric(valuation)]
-	X[, equity.invested := as.numeric(equity.invested)]
-
-	## Drop missing round investment amount
-	X = X[!is.na(amount)]
-	X = X[amount>0]
-
-	print(nrow(X))
-	if (FALSE) {
+	X=subset(X,company.id!="-"&!is.na(amount)&amount>0)
 
     # total equity invested in each round
     X[,equity.total:=sum(equity.invested,na.rm=TRUE),by=.(company.id,round.number)]
@@ -48,7 +32,7 @@ if (is.element("venture_capital.RData",list.files())) {
     # cumulative total investment by firm
     setkey(X,company.id,round.number,firm.name)
     X[,equity.invested:=nafix(equity.invested,0)]
-    X[,cum.inv.by.firm:= cumsum(equity.invested),by=.(company.id, firm.name)]
+    X[,cum.inv.by.firm:=cumsum(equity.invested),by=.(company.id, firm.name)]
 
     # highest cumulative total investment as of current round
     X[,max.cum.inv.by.firm:=max(cum.inv.by.firm),by =.(company.id, round.number)]
@@ -63,9 +47,23 @@ if (is.element("venture_capital.RData",list.files())) {
     X[,nleads:=as.integer(sum(lead.vc)),by =.(company.id, round.number)]
     X[,lead.firm:=ifelse(lead.vc==1,firm.name,NA)]
 
+	# NUMBER OF LEADS
+
+	setkey(X,company.id,round.number,firm.name)
+	write.csv(X,file="jv.csv",row.names=FALSE)
+	print(nrow(X))
+	if (FALSE) {
+
+	###
+	### Before this: data is one record per investment firm round
+
     # remove repeat funds 
     setorder(X,company.id,round.number)
     X=unique(X,by=c("company.id","firm.name"),fromLast=TRUE)
+
+	### After this: data is one record per company.id/round
+	###
+
 
     # Add cumulative amount and equity (for filtering purposes)
     X[,c("cum.equity","cum.amount"):=lapply(.(equity.total,amount),cumsum),by=company.id]

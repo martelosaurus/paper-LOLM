@@ -1,3 +1,4 @@
+options(stringsAsFactors=FALSE)
 library(data.table)
 # ------------------------------------------------------------------------------
 # VENTURE CAPITAL
@@ -8,19 +9,20 @@ for(fn in list.files(pattern="Fund_round_investment")) {
   
 	setnames(dt_fri, colnames(dt_fri), tolower(colnames(dt_fri)))
   
-	cnames_to_rename=c('sic.code', 
-						'naic.code', 
-						'equity.amount.disclosed..usd.mil.', 
-						'valuation.at.transaction.date..usd.mil.', 
-						'no..of.funds.at.investment.date', 
-						'fund.known.equity.invested.in.company.at.investment.date..usd.mil.')
+	cnames_to_rename=c(
+		'sic.code', 
+		'naic.code', 
+		'equity.amount.disclosed..usd.mil.', 
+		'valuation.at.transaction.date..usd.mil.', 
+		'no..of.funds.at.investment.date', 
+		'fund.known.equity.invested.in.company.at.investment.date..usd.mil.')
 	setnames(dt_fri, cnames_to_rename, c('sic', 'naics', 'amount', 'valuation',
 					   'n.funds', 'equity.invested'))
   
 	dt_fri[, investment.date := as.Date(investment.date, format = "%m/%d/%Y")]
   
 	#stopifnot(class(dt_fri[,sic]) == "character")
-	#dt_fri[, sic2 := substring(sic, 1,2)]
+	dt_fri[,sic2:=substring(sic, 1,2)]
 	  
 	X=c(X,list(dt_fri))
 }
