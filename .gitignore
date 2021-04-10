@@ -3,10 +3,9 @@ DataPlots/figures
 DataPlots/legacy_scripts
 DataPlots/real_dats
 DataPlots/venture_capital_dats/*.csv
-figures
-legacy_scripts
-real_dats
-venture_capital_raw.csv
+DataPlots/legacy_scripts
+DataPlots/real_dats
+DataPlots/venture_capital_raw.csv
 ModelPlots/legacy_scripts
 ModelPlots/other_code
 ModelPlots/__pycache__
