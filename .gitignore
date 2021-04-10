@@ -1,8 +1,10 @@
+.gitignore
 .Rhistory
 DataPlots/figures
 DataPlots/legacy_scripts
 DataPlots/real_dats
 DataPlots/venture_capital_dats/*.csv
+DataPlots/venture_capital_dats/*.swp
 DataPlots/legacy_scripts
 DataPlots/real_dats
 DataPlots/venture_capital_raw.csv
