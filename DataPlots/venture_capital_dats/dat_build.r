@@ -22,7 +22,7 @@ for(fn in list.files(pattern="Fund_round_investment")) {
 	dt_fri[, investment.date := as.Date(investment.date, format = "%m/%d/%Y")]
   
 	#stopifnot(class(dt_fri[,sic]) == "character")
-	dt_fri[,sic2:=substring(sic, 1,2)]
+	#dt_fri[,sic2:=substring(sic, 1,2)]
 	  
 	X=c(X,list(dt_fri))
 }

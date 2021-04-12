@@ -73,8 +73,8 @@ for(fn in list.files()) {
           
           dt_fri[, investment.date := as.Date(investment.date, format = "%m/%d/%Y")]
           
-          stopifnot(class(dt_fri[,sic]) == "character")
-          dt_fri[, sic2 := substring(sic, 1,2)]
+          #stopifnot(class(dt_fri[,sic]) == "character")
+          #dt_fri[, sic2 := substring(sic, 1,2)]
           #dt_fri[company.id == "C000065382"]
           
           dt_vca = rbindlist(list(dt_vca, dt_fri))
@@ -109,6 +109,14 @@ dt_vca = dt_vca[amount>0]
 dt_vca[, equity.total := sum(equity.invested, na.rm=TRUE), 
        by = .(company.id, round.number)]
 
+### JORDAN ###
+if (TRUE) {
+dt_vca = dt_vca[,round.tag:=all(unique(.SD[,round.number])==seq(1,max(.SD[,round.number]))),by=.(company.id)]
+dt_vca = subset(dt_vca,round.tag)
+dt_vca[,max.round:=max(.SD[,round.number]),by=.(company.id)]
+dt_vca = subset(dt_vca,max.round>1)
+}
+### JORDAN ###
 
 ## Collapse on company/round/firm/
 #dt_vca = dt_vca[, .(company.name, company.id, round.number, investment.date,
@@ -125,6 +133,10 @@ dt_vca[, equity.total := sum(equity.invested, na.rm=TRUE),
 ## cumulative total investment by firm
 setkey(dt_vca, company.id, round.number, firm.name)
 dt_vca[, equity.invested.nafix := ifelse(!is.na(equity.invested), equity.invested, 0)]
+#---
+dt_vca[,valuation:=ifelse(!is.na(valuation),valuation,0)]
+dt_vca[,equity.invested:=NULL]
+#---
 dt_vca[, cum.inv.by.firm := cumsum(equity.invested.nafix), by = .(company.id, firm.name)]
 #dt_vca[, equity.invested.nafix := NULL]
 
@@ -135,7 +147,7 @@ dt_vca[, max.cum.inv.by.firm := max(cum.inv.by.firm), by = .(company.id, round.n
 dt_vca[, max.cum.inv.cum := cummax(max.cum.inv.by.firm), by = .(company.id)]
 
 dt_vca[, lead.vc := ifelse(cum.inv.by.firm == max.cum.inv.cum & cum.inv.by.firm > 0 , 1L, 0L)]
-#dt_vca[firm.name == "Undisclosed Firm", lead.vc := 0L]
+dt_vca[firm.name == "Undisclosed Firm", lead.vc := 0L]
 
 ## Multiple leads, put in multiple columns (max 6)
 dt_vca[, nleads := as.integer(sum(lead.vc)), by = .(company.id, round.number)]
@@ -143,9 +155,8 @@ dt_vca[, lead.firm := ifelse(lead.vc == 1L,firm.name,NA)]
 
 setkey(dt_vca,company.id,round.number,firm.name)
 write.csv(dt_vca,file="bv.csv",row.names=FALSE)
-
 print(nrow(dt_vca))
-if (FALSE) {
+if (TRUE) {
 
 dt_vca[nleads >= 1L, lead.firm.1 := na.exclude(unique(lead.firm))[1], by = .(company.id, round.number)]
 dt_vca[nleads >= 2L, lead.firm.2 := na.exclude(unique(lead.firm))[2], by = .(company.id, round.number)]
@@ -327,7 +338,7 @@ dt_vca = dt_vca[durationYear>xmin]
 #dt_vca = dt_vca[sic2=="73"]
 
 #JORDAN
-X<-dt_vca[,.(prior.lead.date,investment.date,durationYear,ln_Return)]
+X<-dt_vca[,.(company.name,prior.lead.date,investment.date,durationYear,ln_Return)]
 X[,t.purchase.yq:=factor(year(prior.lead.date)):factor(quarter(prior.lead.date))]
 X[,T.purchase.yq:=factor(year(investment.date)):factor(quarter(investment.date))]
 X[,c("prior.lead.date","investment.date"):=NULL]

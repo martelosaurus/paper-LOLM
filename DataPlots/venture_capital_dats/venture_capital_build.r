@@ -26,13 +26,22 @@ if (is.element("venture_capital.RData",list.files())) {
 	X[,paste(vars):=lapply(.SD[,vars,with=FALSE],as.numeric)]
 	X=subset(X,company.id!="-"&!is.na(amount)&amount>0)
 
+	X = X[,round.tag:=all(unique(.SD[,round.number])==seq(1,max(.SD[,round.number]))),by=.(company.id)]
+	X = subset(X,round.tag)
+	X[,max.round:=max(.SD[,round.number]),by=.(company.id)]
+	X = subset(X,max.round>1)
+
     # total equity invested in each round
     X[,equity.total:=sum(equity.invested,na.rm=TRUE),by=.(company.id,round.number)]
 
     # cumulative total investment by firm
     setkey(X,company.id,round.number,firm.name)
-    X[,equity.invested:=nafix(equity.invested,0)]
-    X[,cum.inv.by.firm:=cumsum(equity.invested),by=.(company.id, firm.name)]
+    X[,equity.invested.nafix:=nafix(equity.invested,0)]
+	#---
+	X[,valuation := ifelse(!is.na(valuation), valuation, 0)]
+	X[,equity.invested:=NULL]
+	#--
+    X[,cum.inv.by.firm:=cumsum(equity.invested.nafix),by=.(company.id, firm.name)]
 
     # highest cumulative total investment as of current round
     X[,max.cum.inv.by.firm:=max(cum.inv.by.firm),by =.(company.id, round.number)]
@@ -42,13 +51,13 @@ if (is.element("venture_capital.RData",list.files())) {
 
 	# identify the lead VC
     X[,lead.vc:=ifelse(cum.inv.by.firm==max.cum.inv.cum&cum.inv.by.firm>0,1,0)]
+	X[firm.name=="Undisclosed Firm",lead.vc:=0L]
 
     # multiple lead VCs
     X[,nleads:=as.integer(sum(lead.vc)),by =.(company.id, round.number)]
     X[,lead.firm:=ifelse(lead.vc==1,firm.name,NA)]
 
 	# NUMBER OF LEADS
-
 	setkey(X,company.id,round.number,firm.name)
 	write.csv(X,file="jv.csv",row.names=FALSE)
 	print(nrow(X))
@@ -63,7 +72,6 @@ if (is.element("venture_capital.RData",list.files())) {
 
 	### After this: data is one record per company.id/round
 	###
-
 
     # Add cumulative amount and equity (for filtering purposes)
     X[,c("cum.equity","cum.amount"):=lapply(.(equity.total,amount),cumsum),by=company.id]
