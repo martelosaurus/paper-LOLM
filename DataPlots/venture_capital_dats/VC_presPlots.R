@@ -132,11 +132,11 @@ dt_vca = subset(dt_vca,max.round>1)
 
 ## cumulative total investment by firm
 setkey(dt_vca, company.id, round.number, firm.name)
-dt_vca[, equity.invested.nafix := ifelse(!is.na(equity.invested), equity.invested, 0)]
-#---
+#dt_vca[, equity.invested.nafix := ifelse(!is.na(equity.invested), equity.invested, 0)]
+#dt_vca[, equity.invested.nafix := ifelse(!is.na(equity.invested), equity.invested, 0)]
+dt_vca[, equity.invested.nafix := ifelse(!is.na(amount), amount, 0)]
 dt_vca[,valuation:=ifelse(!is.na(valuation),valuation,0)]
 dt_vca[,equity.invested:=NULL]
-#---
 dt_vca[, cum.inv.by.firm := cumsum(equity.invested.nafix), by = .(company.id, firm.name)]
 #dt_vca[, equity.invested.nafix := NULL]
 
@@ -156,7 +156,7 @@ dt_vca[, lead.firm := ifelse(lead.vc == 1L,firm.name,NA)]
 setkey(dt_vca,company.id,round.number,firm.name)
 write.csv(dt_vca,file="bv.csv",row.names=FALSE)
 print(nrow(dt_vca))
-if (TRUE) {
+if (FALSE) {
 
 dt_vca[nleads >= 1L, lead.firm.1 := na.exclude(unique(lead.firm))[1], by = .(company.id, round.number)]
 dt_vca[nleads >= 2L, lead.firm.2 := na.exclude(unique(lead.firm))[2], by = .(company.id, round.number)]

@@ -5,7 +5,8 @@ library(ggplot2)
 library(foreign)
 library(lfe)
 
-nafix=function(x,f) ifelse(is.na(x),f,x)
+#nafix=function(x,f) ifelse(is.na(x),f,x)
+nafix=function(x,f) ifelse(is.na(x),NA,x)
 
 # NOTES:
 #	- "company.id" refers to the company in which VC funds invest
@@ -26,7 +27,8 @@ if (is.element("venture_capital.RData",list.files())) {
 	X[,paste(vars):=lapply(.SD[,vars,with=FALSE],as.numeric)]
 	X=subset(X,company.id!="-"&!is.na(amount)&amount>0)
 
-	X = X[,round.tag:=all(unique(.SD[,round.number])==seq(1,max(.SD[,round.number]))),by=.(company.id)]
+	rtf = function(x) all(unique(x)==seq(1,max(x)))
+	X = X[,round.tag:=rtf(.SD[,round.number]),by=.(company.id)]
 	X = subset(X,round.tag)
 	X[,max.round:=max(.SD[,round.number]),by=.(company.id)]
 	X = subset(X,max.round>1)
@@ -35,12 +37,18 @@ if (is.element("venture_capital.RData",list.files())) {
     X[,equity.total:=sum(equity.invested,na.rm=TRUE),by=.(company.id,round.number)]
 
     # cumulative total investment by firm
+    #setkey(X,company.id,round.number,firm.name)
+    #X[,equity.invested.nafix:=nafix(equity.invested,0)]
+	##---
+	#X[,valuation := ifelse(!is.na(valuation), valuation, 0)]
+	#X[,equity.invested:=NULL]
+	##--
+    #X[,cum.inv.by.firm:=cumsum(equity.invested.nafix),by=.(company.id, firm.name)]
+    # cumulative total investment by firm
     setkey(X,company.id,round.number,firm.name)
-    X[,equity.invested.nafix:=nafix(equity.invested,0)]
-	#---
+    X[,equity.invested.nafix:=nafix(amount,0)]
 	X[,valuation := ifelse(!is.na(valuation), valuation, 0)]
 	X[,equity.invested:=NULL]
-	#--
     X[,cum.inv.by.firm:=cumsum(equity.invested.nafix),by=.(company.id, firm.name)]
 
     # highest cumulative total investment as of current round
