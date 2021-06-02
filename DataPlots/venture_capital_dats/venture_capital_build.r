@@ -7,6 +7,14 @@ library(zoo)
 
 xmin = 1/365
 
+# load data
+if (is.element("venture_capital.RData",list.files())) {
+	load("venture_capital.RData")
+} else {
+
+
+	# load data
+
 ##################################################
 ## ----------- 3. Data Handling --------------- ##
 ##################################################
@@ -209,9 +217,12 @@ setorder(X, duration)
 
 X[,Return := cum.Return/prior.cum.Return] # check this #s seem low  LEFT OFF HERE
 
+print(summary(X[,duration]))
 X[,durationYear:=duration/365]
 
+print(nrow(X))
 X = X[durationYear>xmin]
+print(nrow(X))
 
 X<-X[,.(prior.lead.date,investment.date,durationYear,ln_Return)]
 X[,t.purchase.yq:=factor(year(prior.lead.date)):factor(quarter(prior.lead.date))]
@@ -219,3 +230,4 @@ X[,T.purchase.yq:=factor(year(investment.date)):factor(quarter(investment.date))
 X[,c("prior.lead.date","investment.date"):=NULL]
 setnames(X,c("durationYear","ln_Return"),c("duration","logret"))
 save(X,file="venture_capital.RData")
+}

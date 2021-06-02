@@ -115,4 +115,3 @@ if (FALSE) {
     save(X,file="venture_capital.RData")
 }
 }
-
