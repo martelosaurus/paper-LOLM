@@ -1,4 +1,6 @@
 ## Name:          *.R
+## Author:        Brian Waters
+## Last revision: 2017-03-30
 ##
 ## 1. Options
 ## 2. Data Input
@@ -35,10 +37,10 @@ xmin = 1/365
 
 "%P%" <- function(x,y) paste(x,y, sep="")
 
-# if (FALSE) {
-# folder = 'C:/Users/brwa6692/Dropbox/Experimentation in a Lemons Market/AER R&R/VX Data/'
-# setwd("C:/Users/brwa6692/Dropbox/Experimentation in a Lemons Market/AER R&R/VX Data")
-# }
+if (FALSE) {
+folder = 'C:/Users/brwa6692/Dropbox/Experimentation in a Lemons Market/AER R&R/VX Data/'
+setwd("C:/Users/brwa6692/Dropbox/Experimentation in a Lemons Market/AER R&R/VX Data")
+}
 #folder = 'C:/Users/Brian/Dropbox/Experimentation in a Lemons Market/AER R&R/VX Data/'
 #setwd("C:/Users/Brian/Dropbox/Experimentation in a Lemons Market/AER R&R/VX Data")
 
@@ -73,15 +75,17 @@ for(fn in list.files()) {
           
           dt_fri[, investment.date := as.Date(investment.date, format = "%m/%d/%Y")]
           
-          #stopifnot(class(dt_fri[,sic]) == "character")
-          #dt_fri[, sic2 := substring(sic, 1,2)]
+          stopifnot(class(dt_fri[,sic]) == "character")
+          dt_fri[, sic2 := substring(sic, 1,2)]
           #dt_fri[company.id == "C000065382"]
           
           dt_vca = rbindlist(list(dt_vca, dt_fri))
 
     }
 }
+
 setkey(dt_vca, company.id, round.number)
+
 
 ##################################################
 ## ----------- 3. Data Handling --------------- ##
@@ -91,7 +95,6 @@ setkey(dt_vca, company.id, round.number)
 ## Clean data
 #######
 
-print(nrow(dt_vca))
 ## Drop missing company id
 dt_vca = dt_vca[company.id != "-"]
 
@@ -109,15 +112,6 @@ dt_vca = dt_vca[amount>0]
 dt_vca[, equity.total := sum(equity.invested, na.rm=TRUE), 
        by = .(company.id, round.number)]
 
-### JORDAN ###
-if (TRUE) {
-dt_vca = dt_vca[,round.tag:=all(unique(.SD[,round.number])==seq(1,max(.SD[,round.number]))),by=.(company.id)]
-dt_vca = subset(dt_vca,round.tag)
-dt_vca[,max.round:=max(.SD[,round.number]),by=.(company.id)]
-dt_vca = subset(dt_vca,max.round>1)
-}
-### JORDAN ###
-
 ## Collapse on company/round/firm/
 #dt_vca = dt_vca[, .(company.name, company.id, round.number, investment.date,
 #                    sic, sic2, naics, amount, valuation, n.funds,
@@ -132,11 +126,7 @@ dt_vca = subset(dt_vca,max.round>1)
 
 ## cumulative total investment by firm
 setkey(dt_vca, company.id, round.number, firm.name)
-#dt_vca[, equity.invested.nafix := ifelse(!is.na(equity.invested), equity.invested, 0)]
-#dt_vca[, equity.invested.nafix := ifelse(!is.na(equity.invested), equity.invested, 0)]
-dt_vca[, equity.invested.nafix := ifelse(!is.na(amount), amount, 0)]
-dt_vca[,valuation:=ifelse(!is.na(valuation),valuation,0)]
-dt_vca[,equity.invested:=NULL]
+dt_vca[, equity.invested.nafix := ifelse(!is.na(equity.invested), equity.invested, 0)]
 dt_vca[, cum.inv.by.firm := cumsum(equity.invested.nafix), by = .(company.id, firm.name)]
 #dt_vca[, equity.invested.nafix := NULL]
 
@@ -147,16 +137,11 @@ dt_vca[, max.cum.inv.by.firm := max(cum.inv.by.firm), by = .(company.id, round.n
 dt_vca[, max.cum.inv.cum := cummax(max.cum.inv.by.firm), by = .(company.id)]
 
 dt_vca[, lead.vc := ifelse(cum.inv.by.firm == max.cum.inv.cum & cum.inv.by.firm > 0 , 1L, 0L)]
-dt_vca[firm.name == "Undisclosed Firm", lead.vc := 0L]
+#dt_vca[firm.name == "Undisclosed Firm", lead.vc := 0L]
 
 ## Multiple leads, put in multiple columns (max 6)
 dt_vca[, nleads := as.integer(sum(lead.vc)), by = .(company.id, round.number)]
 dt_vca[, lead.firm := ifelse(lead.vc == 1L,firm.name,NA)]
-
-setkey(dt_vca,company.id,round.number,firm.name)
-write.csv(dt_vca,file="bv.csv",row.names=FALSE)
-print(nrow(dt_vca))
-if (FALSE) {
 
 dt_vca[nleads >= 1L, lead.firm.1 := na.exclude(unique(lead.firm))[1], by = .(company.id, round.number)]
 dt_vca[nleads >= 2L, lead.firm.2 := na.exclude(unique(lead.firm))[2], by = .(company.id, round.number)]
@@ -335,15 +320,136 @@ dt_vca[,durationYear:=duration/365]
 #dt_vca = dt_vca[durationYear>0.25] #Remove misreported round data - also clear break in frequency of data beginning at 3 months
 dt_vca = dt_vca[durationYear>xmin]
 #dt_vca = dt_vca[durationYear<6]
-#dt_vca = dt_vca[sic2=="73"]
+# dt_vca = dt_vca[sic2=="73"]
 
 #JORDAN
-X<-dt_vca[,.(company.name,prior.lead.date,investment.date,durationYear,ln_Return)]
+X<-dt_vca[,.(prior.lead.date,investment.date,durationYear,ln_Return)]
 X[,t.purchase.yq:=factor(year(prior.lead.date)):factor(quarter(prior.lead.date))]
 X[,T.purchase.yq:=factor(year(investment.date)):factor(quarter(investment.date))]
 X[,c("prior.lead.date","investment.date"):=NULL]
 setnames(X,c("durationYear","ln_Return"),c("duration","logret"))
-Y = X
-#save(Y,file="venture_capital.RData")
+save(X,file="venture_capital.RData")
 #JORDAN
-}
+
+#########################################
+## ----------- 4. Analysis ----------- ##
+#########################################
+
+dft=dt_vca
+
+gaRaw = gam(ln_Return~s(durationYear), data=dft, sp=0.05)
+plot(gaRaw, shift=mean(dft$ln_Return), shade=1.65, xlim=c(.25,3),main="Venture Capital")
+
+pRaw = predict(gaRaw,type="terms",terms="s(durationYear)",se.fit=TRUE)
+meanRaw = mean(dft$ln_Return)
+
+dft2 = dft[dft$durationYear<3]
+pRaw$fit = pRaw$fit[dft$durationYear<3]
+pRaw$se.fit = pRaw$se.fit[dft$durationYear<3]
+
+
+pdf("VC_rawReturn.pdf", hei=4.5, wid=5.5)
+par(mar=c(5.1, 4.1, 2.1, 2.1))
+plot(dft2$durationYear,pRaw$fit, type="l", xlab='Time to Sale (Years)', lwd=0, lty=1, col="black", ylab='Log(Return)', main="Venture Capital", cex.lab=1.2, ylim=c(-0.4,1))
+polygon(c(dft2$durationYear, rev(dft2$durationYear)), c(pRaw$fit+1.65*pRaw$se.fit, rev(pRaw$fit-1.65*pRaw$se.fit)), col = "grey90", border = NA)
+lines(dft2$durationYear, pRaw$fit, lwd=2)
+dev.off()
+
+
+pdf("VC_change_hist.pdf", hei=4.5, wid=5.5)
+par(mar=c(5.1, 4.1, 2.1, 2.1))
+hist.change <- hist(dft2$durationYear, probability=FALSE, breaks=seq(from=0.25,to=3,by=0.125), xlab='Time to Sale (Years)', ylab='Number of Changes', main="Venture Capital", cex.lab=1.2)
+box()
+dev.off()
+
+
+
+##### Adjust for depreciation #############
+
+#lmRaw = lm(ln_Return~durationYear,data=dft)
+#betaRaw = lmRaw$coefficients[2]
+#dft[,rot_ln_Return:=ln_Return-betaRaw*durationYear]
+
+#gaRot = gam(rot_ln_Return~s(durationYear),data=dft)
+#plot(gaRot, shift=mean(dft$rot_ln_Return))
+
+#pRot = predict(gaRot,type="terms",terms="s(durationYear)",se.fit=TRUE)
+#meanRot = mean(dft$rot_ln_Return)
+
+#pdf("VC_rotReturn.pdf", hei=4.5, wid=5.5)
+#par(mar=c(5.1, 4.1, 2.1, 2.1))
+#plot(dft$durationYear,pRot$fit+meanRot, type="l", xlab='Time to Sale (Years)', lwd=0, lty=1, col="black", ylab='Adjusted Log(Return)', main=NULL, cex.lab=1.2, ylim=c(-0.1,.6))
+#polygon(c(dft$durationYear, rev(dft$durationYear)), c(pRot$fit+meanRot+1.96*pRot$se.fit, rev(pRot$fit+meanRot-1.96*pRot$se.fit)), col = "grey90", border = NA)
+#lines(dft$durationYear, pRot$fit+meanRot, lwd=2)
+#dev.off()
+
+
+###### Residuals ############
+
+dft[,yearFirst:=year(prior.lead.date)]
+dft[,yearChange:=year(investment.date)]
+
+estFE <- felm(ln_Return ~ -1 | factor(sic2) + factor(yearFirst) + factor(yearChange), data=dft)
+#summary(estFE)
+#FE = getfe(estFE)
+
+
+#dft[, resid_ln_Return := estFE$residuals]
+dft[,resid_ln_Return:=ln_Return]
+
+dft3 = dft[resid_ln_Return!=0]
+
+plot(dft3$durationYear,dft3$resid_ln_Return,main="Venture Capital")
+
+
+gaResid = gam(resid_ln_Return~s(durationYear),data=dft3)
+plot(gaResid, shade=1.65, xlim=c(.25,3),main="Venture Capital")
+
+pResid = predict(gaResid,type="terms",terms="s(durationYear)",se.fit=TRUE)
+
+pResid$fit = pResid$fit[dft3$durationYear<3]
+pResid$se.fit = pResid$se.fit[dft3$durationYear<3]
+dft3=dft3[durationYear<3]
+
+
+pdf("VC_residReturn.pdf", hei=4.5, wid=5.5)
+par(mar=c(5.1, 4.1, 2.1, 2.1))
+plot(dft3$durationYear,pResid$fit, type="l", xlab='Time to Sale (Years)', lwd=0, lty=1, col="black", ylab='Residual Log(Return)', main="Venture Capital", cex.lab=1.2, ylim=c(-0.2,.4))
+polygon(c(dft3$durationYear, rev(dft3$durationYear)), c(pResid$fit+1.65*pResid$se.fit, rev(pResid$fit-1.65*pResid$se.fit)), col = "grey90", border = NA)
+lines(dft3$durationYear, pResid$fit, lwd=2)
+dev.off()
+
+
+
+#############################################
+## ----------- 5. Output Plots ----------- ##
+#############################################
+
+###########
+#### Plot 1: Distribution of Lead VC Changes
+###########
+
+############
+#### Plot 2a: GAM with bayesian interval
+############
+
+pdf("VC_unadj_GAM.pdf", hei=4.5, wid=5.5)
+par(mar=c(5.1, 4.1, 2.1, 2.1))
+plot(gaRaw, xlim=c(xmin,27), shade=1.65, lwd=2, ylim=c(-.7,.7), xlab='Time to Sale', ylab='Log Holding Period Return', main="Venture Capital", cex.lab=1.2)
+points(seq(from=3, to=27, by=1),FE[1:25,1],pch=4, cex=.5, lwd=1.0, col='blue')
+dev.off()
+
+
+############
+#### Plot 2b: Quad
+############
+
+
+pdf("VC_change_hist.pdf", hei=4.5, wid=5.5)
+par(mar=c(5.1, 4.1, 2.1, 2.1))
+dt_vca[,duration:=duration/365]
+x<-dt_vca[,duration]
+x27 <- x[x<27]
+hist(x,xlab='Time to Sale',ylab='Number of Changes',main='Venture Capital',cex.lab=1.2)
+box()
+dev.off()
