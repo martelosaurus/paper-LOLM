@@ -48,6 +48,12 @@ X = data.table(
 	round.number=rep(rep(seq(1,30,1),each=2),2),
 	amount=20*runif(120),
 	valuation=20*runif(120),
-	equity.invested=5*runif(120)
+	equity.invested=20*runif(120)
 )
-write.csv(X,file='venture_capital.csv')
+# In this example, all investments are reported (not true in reality)
+if (FALSE) {
+X[,equity.invested:=cumsum(amount),by=.(company.id)]
+X[,equity.invested:=max(equity.invested),by=.(investment.date,company.id,round.number)]
+}
+#write.csv(X,file='venture_capital.csv')
+write.csv(X,file='venture_capital_dats/dummy.csv')
