@@ -112,6 +112,10 @@ if (is.element("venture_capital.RData",list.files())) {
 	X[, round.Return := ifelse(is.na(round.Return), T, round.Return)]
 	X[, cum.Return := cumprod(round.Return), by=.(company.id)]
 
+	##############################################################################
+	##############################################################################
+	##############################################################################
+
 	## Lag some values to figure out lead changes
 	setkey(X, company.id, round.number)
 	X[, prior.lead.1 := c(NA,head(lead.firm.1,-1)), by=company.id]
@@ -154,6 +158,10 @@ if (is.element("venture_capital.RData",list.files())) {
 	X[, prior.lead.4 := c(NA,head(lead.firm.4,-1)), by=company.id]
 	X[, prior.lead.5 := c(NA,head(lead.firm.5,-1)), by=company.id]
 	X[, prior.lead.6 := c(NA,head(lead.firm.6,-1)), by=company.id]
+
+	##############################################################################
+	##############################################################################
+	##############################################################################
 
 	# Lead change? 
 	# If none of the current lead firms was a lead firm before, I want to mark it as lead change
