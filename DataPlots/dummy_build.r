@@ -46,9 +46,9 @@ X = data.table(
 	company.id=rep(paste("Company",c("X","Y")),each=60),
 	firm.name=rep(paste("Fund",c("A","B")),60),
 	round.number=rep(rep(seq(1,30,1),each=2),2),
-	amount=20*runif(120),
-	valuation=20*runif(120),
-	equity.invested=20*runif(120)
+	amount=sample(seq(1,20,1),120,replace=TRUE),
+	valuation=sample(seq(1,20,1),120,replace=TRUE),
+	equity.invested=sample(seq(1,20,1),120,replace=TRUE)
 )
 # In this example, all investments are reported (not true in reality)
 if (FALSE) {

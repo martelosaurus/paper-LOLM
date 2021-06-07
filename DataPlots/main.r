@@ -4,7 +4,7 @@ library(ggplot2)
 #library(foreign)
 library(lfe)
 
-# estimator-------------------------------------------------------------------#
+# estimator--------------------------------------------------------------------#
 estimator=function(dummies,duration.breaks,application,X) {
 	#
 	#	Parameters
@@ -73,7 +73,7 @@ estimator=function(dummies,duration.breaks,application,X) {
     modfor=as.formula(modstr)
     fm.r=felm(modfor,data=X)
     if (application=="housing") {
-        fm.r=felm(logret~-1|T.purchase.yq+t.purchase.yq,data=X)
+        fm.r=felm(logret~-1|T.buy.yq+t.buy.yq,data=X)
     }
     X[,logret.res:=fm.r$residuals]
     ga=gam(logret.res~s(duration,sp=smpar),data=X)

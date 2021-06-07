@@ -46,5 +46,5 @@ if (is.element("equipment.RData",list.files())) {
     X=subset(X,n.sales>1)
 
 	# plot residuals ----------------------------------------------------------#
-    #save(X,file="equipment.RData")
+    save(X,file="equipment.RData")
 }

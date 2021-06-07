@@ -31,9 +31,9 @@ if (is.element("housing.RData",list.files())) {
         X[,n.sales:=.N,by=importparcelid]
 		X=subset(X,n.sales>1) # need at least two transaction
 
-        X[,paste("t.purchase",c("y","q","m"),sep="."):=yqm(documentdate)]
+        X[,paste("t.buy",c("y","q","m"),sep="."):=yqm(documentdate)]
         X[,documentdate.lead:=shift(documentdate,type="lead")]
-        X[,paste("T.purchase",c("y","q","m"),sep="."):=yqm(documentdate.lead)]
+        X[,paste("T.buy",c("y","q","m"),sep="."):=yqm(documentdate.lead)]
 
 		setkey(X,importparcelid,documentdate) # MUST BE KEYED 
         X[,duration:=(shift(documentdate,type="lead")-documentdate)/365,by=importparcelid]
@@ -51,11 +51,11 @@ if (is.element("housing.RData",list.files())) {
 	X[,logret:=log(logret)]
 
     # manually factor returns
-    X[,t.purchase.yq:=factor(t.purchase.y):factor(t.purchase.q)]
-	X[,T.purchase.yq:=factor(T.purchase.y):factor(T.purchase.q)]
+    X[,t.buy.yq:=factor(t.buy.y):factor(t.buy.q)]
+	X[,T.buy.yq:=factor(T.buy.y):factor(T.buy.q)]
 
 	# create duration bins
 	X[,duration:=as.numeric(duration)]
 
-	#save(X,file="housing.RData")
+	save(X,file="housing.RData")
 }
