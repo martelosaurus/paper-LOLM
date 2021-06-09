@@ -24,6 +24,10 @@ for(fn in list.files(pattern="Fund_round_investment")) {
 	X=c(X,list(dt_fri))
 }
 X=rbindlist(X)
+
+# drop unused fields
+X[,c("fund.name","naics","sic"):= NULL] 
+
 setkey(X,company.id,round.number)
 write.csv(X,file="venture_capital_raw.csv",row.names=FALSE)
 

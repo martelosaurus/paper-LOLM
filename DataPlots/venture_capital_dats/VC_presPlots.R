@@ -323,12 +323,13 @@ dt_vca = dt_vca[durationYear>xmin]
 # dt_vca = dt_vca[sic2=="73"]
 
 #JORDAN
+save(dt_vca,file="venture_capital.RData")
 X<-dt_vca[,.(prior.lead.date,investment.date,durationYear,ln_Return)]
 X[,t.purchase.yq:=factor(year(prior.lead.date)):factor(quarter(prior.lead.date))]
 X[,T.purchase.yq:=factor(year(investment.date)):factor(quarter(investment.date))]
 X[,c("prior.lead.date","investment.date"):=NULL]
 setnames(X,c("durationYear","ln_Return"),c("duration","logret"))
-save(X,file="venture_capital.RData")
+#save(X,file="venture_capital.RData")
 #JORDAN
 
 #########################################
