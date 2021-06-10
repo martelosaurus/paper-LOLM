@@ -42,7 +42,6 @@ if (is.element("venture_capital.RData",list.files())) {
 	# (used for comparison with fund round amount)
 	X[,equity:=sum(equity.invested,na.rm=T),by=.(company.id, round.number)]
 	
-
     # --------------------------------------------------------------------------
 	# identify lead investors
 
@@ -109,37 +108,16 @@ if (is.element("venture_capital.RData",list.files())) {
 
 	# --------------------------------------------------------------------------
 	# fill-in missing lead firms
-	lead_firms = paste("lead.firm",1:L,sep=".")
-	last_leads = paste("last.lead",1:L,sep=".")
 	setkey(X, company.id, round.number)
-	#X[is.na(lead.firm.1),lead.firms:=.SD[,last.leads],by=company.id]
-	#X[,last_leads:=shift(.SD[,lead_firms,with=F]),by=company.id]
 
 	# if lead.firm.1 is NA, then last leads are retained 
+	X[,lead.firm.1:=na.locf(lead.firm.1),by=company.id]
 
 	# lag some values to figure out lead changes
-	X[,lead.firm.1:=nafill(lead.firm.1,type="locf")]
-	X[,last.lead.1:=c(NA,head(lead.firm.1,-1)),by=company.id]
-	X[,last.lead.2:=c(NA,head(lead.firm.2,-1)),by=company.id]
-	X[,last.lead.3:=c(NA,head(lead.firm.3,-1)),by=company.id]
-
-
-	if (FALSE) {
-	# if lead.firm.1 is NA, last leads should be retained (ideally recursively, but two steps enough here)
-	
-	X[is.na(lead.firm.1), lead.firm.1 := last.lead.1]
-
-	## Circle through lasts once more
-	setkey(X, company.id, round.number)
-	X[, last.lead.1 := c(NA,head(lead.firm.1,-1)), by=company.id]
-
-	## If lead.firm.1 is NA, last leads should be retained (ideally recursively, but two steps enough here)
-	X[is.na(lead.firm.1), lead.firm.1 := last.lead.1]
-
-	## Circle through lasts once more
-	setkey(X, company.id, round.number)
-	X[, last.lead.1 := c(NA,head(lead.firm.1,-1)), by=company.id]
-	}
+	L=3
+	lead_firms = paste("lead.firm",1:L,sep=".")
+	last_leads = paste("last.lead",1:L,sep=".")
+	X[,c(last_leads):=shift(.SD[,lead_firms,with=F]),by=company.id]
 
 	# --------------------------------------------------------------------------
 	# lead change 
