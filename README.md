@@ -4,9 +4,6 @@ Forthcoming at the  *Journal of Finance*. Most of this code was written by or in
 
 ## Empirical work
 In the paper, we look at three applications. To generate the plots in the paper, run
-```R
-source("wrapper.r")
-```
 
 ### Housing 
 The data on sales of residential real estate are from Zillow's ZTrax database and include transactions from 1900 to 2016. Our sample includes all repeat transactions of single-family, detached homes in 31 US states (including the district) for which we have data and in which the transaction price was recorded at the time of sale. Data generously provided by Ryan Lewis (University of Colorado Boulder) and include transaction from AL, AK, CA, CT, DC, DE, FL, GA, HI, IL, IN, LA, ME, MD, MA, MI, MN, MS, NH, NJ, NY, NC, OH, OR, PA, RI, SC, TX, VA, WA, and WI. For many housing transactions, prices are imputed from sales tax filings rather than recorded at the time of sale. To avoid measurement error, the data exclude such sales. 
@@ -17,6 +14,12 @@ salespriceamount | Transaction price
 importparcelid | Parcel ID
 sqrt | Square footage
 documentdate |
+
+```R
+source("housing_build.r")
+duration.breaks=seq(1/365,15+1/365,.25)
+estimator(c("t.purchase.yq","T.purchase.yq"),duration.breaks,"housing",X)
+```
 
 ### Venture Capital 
 To analyze changes in lead VC investors, we use data from VentureXpert covering financing rounds from 1970 to 2015.
@@ -35,6 +38,12 @@ valuation | Valuation at transaction date
 
 All values are in millions of USD.
 
+```R
+source("venture_capital_build.r")
+duration.breaks=seq(.25,2.5,.125)
+estimator(c(),duration.breaks,"venture_capital",X)
+```
+
 ### Equipment
 
 The data on sales of heavy equipment are from EquipmentWatch and include US transactions that occurred between 1994 and 2013. To construct the sample used in our analysis, we include all US repeated transactions across all vehicles in the EquipmentWatch database with a length of ownership between one day and ten years. 
@@ -50,6 +59,11 @@ auction.price |
 condition | 
 country.code | 
 
+```R
+source("equipment_build.r")
+duration.breaks=seq(1/365,10+1/365,.25)
+estimator(c("lag_age","age"),duration.breaks,"equipment",X)
+```
 
 ## Numerical work
 

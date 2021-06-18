@@ -55,7 +55,6 @@ if (is.element("venture_capital.RData",list.files())) {
 
 	# maximum number of leads (and labels)
 	L = max(X[,nleads])
-	L = 3
 	lead_firms = paste("lead.firm",1:L,sep=".")
 	X[,c(lead_firms):=transpose(.(na.exclude(unique(.SD[,lead.firm]))[1:L])),by=.(company.id,round.number)]
 	X[, nleads := NULL]
@@ -109,8 +108,7 @@ if (is.element("venture_capital.RData",list.files())) {
 
 	# if all of the leads are new, then a lead change has occurred
 	setkey(X, company.id, round.number)
-	#X[, lead.change := !any(na.exclude(c(lead.firm.1, lead.firm.2, lead.firm.3)) %in% na.exclude(c(last.lead.1, last.lead.2, last.lead.3))), by=index(X)]
-	X[,lead.change:=!any(na.exclude(c(.SD[,lead_firms,with=FALSE]))%in%na.exclude(c(.SD[,last_leads,with=FALSE]))),by=index(X)]
+	X[,lead.change:=!any(na.exclude(unlist(.SD[,..lead_firms]))%in%na.exclude(unlist(.SD[,..last_leads]))),by=index(X)]
 
 	# check that all last rounds are included 
 	X[,last.in.sum:=cumsum(last.in),by=company.id]
@@ -124,7 +122,7 @@ if (is.element("venture_capital.RData",list.files())) {
 
 	# lag value and date to create return and time change between lead changes
 	cols = c("investment.date","round.number","valuation","cum.Return")
-	X[,paste("last",cols,sep="."):=shift(.SD[,cols,with=F]),by=company.id]
+	X[,paste("last",cols,sep="."):=shift(.SD[,..cols]),by=company.id]
 
 	# --------------------------------------------------------------------------
 	# more filters
@@ -167,5 +165,4 @@ if (is.element("venture_capital.RData",list.files())) {
 	X[,T.buy.yq:=factor_yq(investment.date)]
 	X[,c("last.investment.date","investment.date"):=NULL]
 	#save(X,file="venture_capital.RData")
-	
 }
