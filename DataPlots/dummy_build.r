@@ -47,13 +47,8 @@ X = data.table(
 	firm.name=rep(paste("Fund",c("A","B")),60),
 	round.number=rep(rep(seq(1,30,1),each=2),2),
 	amount=sample(seq(1,20,1),120,replace=TRUE),
-	valuation=sample(seq(1,20,1),120,replace=TRUE),
+	valuation=20+sample(seq(1,20,1),120,replace=TRUE),
 	equity.invested=sample(seq(1,20,1),120,replace=TRUE)
 )
-# In this example, all investments are reported (not true in reality)
-if (FALSE) {
-X[,equity.invested:=cumsum(amount),by=.(company.id)]
-X[,equity.invested:=max(equity.invested),by=.(investment.date,company.id,round.number)]
-}
 #write.csv(X,file='venture_capital.csv')
 write.csv(X,file='venture_capital_dats/dummy.csv')

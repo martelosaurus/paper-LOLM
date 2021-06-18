@@ -1,7 +1,5 @@
 library(data.table) 
-#library(mgcv) 
 library(ggplot2) 
-#library(foreign)
 library(lfe)
 
 # estimator--------------------------------------------------------------------#
