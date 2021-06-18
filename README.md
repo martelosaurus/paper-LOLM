@@ -15,6 +15,8 @@ importparcelid | Parcel ID
 sqrt | Square footage
 documentdate |
 
+To generate the housing plots in the paper, run the following lines:
+
 ```R
 source("housing_build.r")
 duration.breaks=seq(1/365,15+1/365,.25)
@@ -36,7 +38,7 @@ equity.invested | Fund known equity invested in company at investment date
 n.funds | Number of funds at investment date,
 valuation | Valuation at transaction date 
 
-All values are in millions of USD.
+All values are in millions of USD. To generate the venture capital plots in the paper, run the following lines:
 
 ```R
 source("venture_capital_build.r")
@@ -59,6 +61,7 @@ auction.price |
 condition | 
 country.code | 
 
+To generate the equipment plots in the paper, run the following lines:
 ```R
 source("equipment_build.r")
 duration.breaks=seq(1/365,10+1/365,.25)
