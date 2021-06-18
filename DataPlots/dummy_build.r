@@ -51,4 +51,4 @@ X = data.table(
 	equity.invested=sample(seq(1,20,1),120,replace=TRUE)
 )
 #write.csv(X,file='venture_capital.csv')
-write.csv(X,file='venture_capital_dats/dummy.csv')
+write.csv(X,file='venture_capital.csv')
