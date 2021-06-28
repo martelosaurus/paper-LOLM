@@ -69,8 +69,13 @@ estimator(c("lag_age","age"),duration.breaks,"equipment",X)
 ```
 
 ## Numerical work
+For figures...
 
-### Perfect Good News
-
-### Brownian Motion
-
+Low liquidity
+```Python
+eq = pgn(b=.1,c=.1,l=.5,r=.5,Q=.7,Y=1.)
+```
+High liquidity
+```Python
+eq = pgn(b=.9,c=.2,l=.5,r=.5,Q=.7,Y=1.)
+```
