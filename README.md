@@ -1,6 +1,6 @@
 # Learning by Owning in a Lemons Market
 
-Forthcoming at the  *Journal of Finance*. Most of this code was written by or in collaboration with [Brian Waters](https://sites.google.com/site/briantwaters).
+Forthcoming at the  *Journal of Finance*. Most of this code was written by, or in collaboration with, [Brian Waters](https://sites.google.com/site/briantwaters).
 
 ## Empirical work
 Written in R. Requires `data.table` and `zoo`. For figures, run
