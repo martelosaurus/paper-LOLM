@@ -3,7 +3,7 @@
 Forthcoming at the  *Journal of Finance*. Most of this code was written by, or in collaboration with, [Brian Waters](https://sites.google.com/site/briantwaters).
 
 ## Empirical work
-Written in R. Requires `data.table` and `zoo`. For figures, run
+Written in R. Requires `data.table` and `zoo`. Pseudo-data provided in DataPlots/pseudo-data. For figures, run
 
 ```R
 source("driver.r")
@@ -20,6 +20,7 @@ source("equipment_build.r")
 duration.breaks=seq(1/365,10+1/365,.25)
 estimator(c("lag_age","age"),duration.breaks,"equipment",X)
 ```
+Ensure that all scripts and data live in the same directory.
 
 ## Numerical work
 Written in Python. Requires `numpy`, `scipy`, and `matplotlib`. The module is `pgn.py` (`p`erfect `g`ood `n`ews). The `Equilibrium` object has two methods, `plot_val`, which plots values and prices, and `plot_pdf`, which plots probability densities. For figures, run
