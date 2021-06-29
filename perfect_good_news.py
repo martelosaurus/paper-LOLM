@@ -23,9 +23,9 @@ class Equilibrium:
         C1 = r*c/(r+b)
         C2 = l*Y/(r+b)
 
-        # terminal conditions
+		# terminal conditions
         VL1 = vH-c 
-        VH1 = vH-C1
+        VH1 = vH-b*c/(r+b)
 
         # paramter checks
         if c>Q*l*Y/r or l>r+b:
@@ -79,7 +79,6 @@ class Equilibrium:
 
         sol = root(_T0_fun,np.array([2.,1.]))
         T0, t0 = sol.x
-        print(T0)
 
         def _T1_fun(T): 
             return q(0.,T)-Q
@@ -88,7 +87,6 @@ class Equilibrium:
             T1 = np.inf
         else:
             T1 = sol.root
-        print(T1)
 
         def t_hat(T): 
             """t-hat"""
@@ -138,13 +136,12 @@ class Equilibrium:
         # plot equilibrium
 
         # time vectors for sections 0,1,2
-        t0v = np.linspace(0.,t_hat_e,N) 
+        t0v = np.linspace(.5*t_hat_e,t_hat_e,N) 
         t1v = np.linspace(t_hat_e,Te,N) 
-        t2v = np.linspace(Te,1.25*Te,N) 
+        t2v = np.linspace(Te,1.5*Te,N) 
 
-        # blocks
-        ov = np.ones(N)
-        zv = np.zeros(N)
+        # zeros and ones
+        zv, ov = np.zeros(N), np.ones(N)
 
         # time and liquidity density
         self.tv = np.hstack((t0v,t1v,t2v))
@@ -161,9 +158,9 @@ class Equilibrium:
         Omega_t = np.exp(-b*t1v)*((Q*Lambda+D(t1v)*Delta)*b-D(t1v)*Delta_t)
 
         # stack price, L-value, H-value vectors for plotting
-        self.ppv = np.hstack((Q*vH*ov-c,vH*qq1v-c,vH*ov-c))        # price
-        self.VLv = np.hstack((VL(t0v,Te),vH*qq1v-c,vH*ov-c))     # L-value
-        self.VHv = np.hstack((VH(t0v,Te),VH(t1v,Te),VH1*ov))    # H-value        
+        self.ppv = np.hstack((Q*vH*ov-c,vH*qq1v-c,vH*ov-c))  # price
+        self.VLv = np.hstack((VL(t0v,Te),vH*qq1v-c,VL1*ov)) # L-value
+        self.VHv = np.hstack((VH(t0v,Te),VH(t1v,Te),VH1*ov)) # H-value 
 
         # stack for plotting
         Lambda_v = np.hstack((1.-np.exp(-l*t0v),Lambda,Lambda[-1]*ov))
