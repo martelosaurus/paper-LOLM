@@ -3,7 +3,7 @@
 Forthcoming at the  *Journal of Finance*. Most of this code was written by or in collaboration with Brian Waters (University of Colorado Boulder).
 
 ## Empirical work
-In the paper, we look at three applications. To generate the plots in the paper, run
+In the paper, we look at three applications. Requires `data.table` and `zoo`.
 
 ### Housing 
 The data on sales of residential real estate are from Zillow's ZTrax database and include transactions from 1900 to 2016. Our sample includes all repeat transactions of single-family, detached homes in 31 US states (including the district) for which we have data and in which the transaction price was recorded at the time of sale. Data generously provided by Ryan Lewis (University of Colorado Boulder) and include transaction from AL, AK, CA, CT, DC, DE, FL, GA, HI, IL, IN, LA, ME, MD, MA, MI, MN, MS, NH, NJ, NY, NC, OH, OR, PA, RI, SC, TX, VA, WA, and WI. For many housing transactions, prices are imputed from sales tax filings rather than recorded at the time of sale. To avoid measurement error, the data exclude such sales. 
@@ -69,13 +69,16 @@ estimator(c("lag_age","age"),duration.breaks,"equipment",X)
 ```
 
 ## Numerical work
-For figures...
+Requires `numpy`, `scipy`, and `matplotlib`. The module is `pgn.py` (`p`erfect `g`ood `n`ews). For figures...
 
-Low liquidity
 ```Python
-eq = pgn(b=.1,c=.1,l=.5,r=.5,Q=.7,Y=1.)
-```
-High liquidity
-```Python
-eq = pgn(b=.9,c=.2,l=.5,r=.5,Q=.7,Y=1.)
+from pgn import Equilibrium
+L_liq = Equilibrium(b=.1,c=.1,l=.5,r=.5,Q=.7,Y=1.) # high liquidity
+L_liq.plot(,type="value") # figure 4(a)
+L_liq.plot(,type="pdf") # figure 4(b)
+L_liq.plot(,type="value") # figure 5(a)
+L_liq.plot(,type="pdf") # figure 5(b)
+H_liq = Equilibrium(b=.9,c=.2,l=.5,r=.5,Q=.7,Y=1.) # low liquidity
+H_liq.plot(,type="value") # figure 6(a)
+H_liq.plot(,type="pdf") # figure 6(b)
 ```
