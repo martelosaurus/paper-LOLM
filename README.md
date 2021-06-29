@@ -6,6 +6,7 @@ Forthcoming at the  *Journal of Finance*. Most of this code was written by or in
 Written in R. Requires `data.table` and `zoo`. For figures...
 
 ```R
+source("driver.r")
 # housing: figures
 source("housing_build.r")
 duration.breaks=seq(1/365,15+1/365,.25)
@@ -27,12 +28,12 @@ Written in Python. Requires `numpy`, `scipy`, and `matplotlib`. The module is `p
 from pgn import Equilibrium
 # high liquidity
 L_liq = Equilibrium(b=.1,c=.1,l=.5,r=.5,Q=.7,Y=1.) 
-L_liq.plot_val() # figure 4(a)
-L_liq.plot_pdf() # figure 4(b)
-L_liq.plot_val() # figure 5(a)
-L_liq.plot_pdf() # figure 5(b)
+L_liq.plot_val(full=True)	# figure 4(a): price, L-value, H-value
+L_liq.plot_pdf() 			# figure 4(b): strategic
+L_liq.plot_val() 			# figure 5(a): price
+L_liq.plot_pdf(full=True) 	# figure 5(b): strategic, liquidity, total
 # low liquidity
 H_liq = Equilibrium(b=.9,c=.2,l=.5,r=.5,Q=.7,Y=1.) 
-H_liq.plot_val() # figure 6(a)
-H_liq.plot_pdf() # figure 6(b)
+H_liq.plot_val(full=True) 	# figure 6(a): price, L-value, H-value
+H_liq.plot_pdf(full=True) 	# figure 6(b): strategic, liquidity, total
 ```
