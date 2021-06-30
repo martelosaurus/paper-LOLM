@@ -7,15 +7,25 @@ Written in R. Requires `data.table`, `ggplot2`, `lfe` and `zoo`. Pseudo-data pro
 
 ```R
 source("driver.r")
-# housing: figures 1(a) "housing_resrets.pdf", 1(b) "housing_hist.pdf", 7(a) "housing_rawrets.pdf", 7(b) "housing_rotrets.pdf"
+# housing: 
+#    figure 1(a) "housing_resrets.pdf"
+#    figure 1(b) "housing_hist.pdf"
+#    figure 7(a) "housing_rawrets.pdf"
+#    figure 7(b) "housing_rotrets.pdf"
 source("housing_build.r")
 duration.breaks=seq(1/365,15+1/365,.25)
 estimator(c("t.purchase.yq","T.purchase.yq"),duration.breaks,"housing",X)
-# venture capital: figures 2(a) "venture_capital_rawrets.pdf", 2(b) "venture_capital_hist.pdf"
+# venture capital: 
+#    figure 2(a) "venture_capital_rawrets.pdf"
+#	 figure 2(b) "venture_capital_hist.pdf"
 source("venture_capital_build.r")
 duration.breaks=seq(.25,2.5,.125)
 estimator(c(),duration.breaks,"venture_capital",X)
-# equipment: figures 3(a) "equipment_resrets.pdf", 3(b) "equipment_hist.pdf", 8(a) "equipment_rawrets.pdf", 8(b) "equipment_rotrets.pdf"
+# equipment: 
+#    figure 3(a) "equipment_resrets.pdf"
+#    figure 3(b) "equipment_hist.pdf"
+#    figure 8(a) "equipment_rawrets.pdf"
+#    figure 8(b) "equipment_rotrets.pdf"
 source("equipment_build.r")
 duration.breaks=seq(1/365,10+1/365,.25)
 estimator(c("lag_age","age"),duration.breaks,"equipment",X)
