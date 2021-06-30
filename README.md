@@ -6,29 +6,29 @@ Forthcoming at the  *Journal of Finance*. Most of this code was written by, or i
 Written in R. Requires `data.table`, `ggplot2`, `lfe` and `zoo`. Pseudo-data provided in DataPlots/pseudo-data. For figures, run
 
 ```R
-source("driver.r")
+source("main.r") # loads estimator function
 # housing: 
 #    figure 1(a) "housing_resrets.pdf"
 #    figure 1(b) "housing_hist.pdf"
 #    figure 7(a) "housing_rawrets.pdf"
 #    figure 7(b) "housing_rotrets.pdf"
 source("housing_build.r") # loads data.table X
-duration.breaks=seq(1/365,15+1/365,.25)
-estimator(c("t.purchase.yq","T.purchase.yq"),duration.breaks,"housing",X)
+duration_breaks=seq(1/365,15+1/365,.25)
+estimator(c("t.purchase.yq","T.purchase.yq"),duration_breaks,"housing",X)
 # venture capital: 
 #    figure 2(a) "venture_capital_rawrets.pdf"
 #	 figure 2(b) "venture_capital_hist.pdf"
 source("venture_capital_build.r") # loads data.table X
-duration.breaks=seq(.25,2.5,.125)
-estimator(c(),duration.breaks,"venture_capital",X)
+duration_breaks=seq(.25,2.5,.125)
+estimator(c(),duration_breaks,"venture_capital",X)
 # equipment: 
 #    figure 3(a) "equipment_resrets.pdf"
 #    figure 3(b) "equipment_hist.pdf"
 #    figure 8(a) "equipment_rawrets.pdf"
 #    figure 8(b) "equipment_rotrets.pdf"
 source("equipment_build.r") # loads data.table X
-duration.breaks=seq(1/365,10+1/365,.25)
-estimator(c("lag_age","age"),duration.breaks,"equipment",X)
+duration_breaks=seq(1/365,10+1/365,.25)
+estimator(c("lag_age","age"),duration_breaks,"equipment",X)
 ```
 Ensure that all scripts and data live in the same directory.
 
@@ -48,3 +48,4 @@ H_liq = Equilibrium(b=.9,c=.2,l=.5,r=.5,Q=.7,Y=1.)
 H_liq.plot_val(full=True) # figure 6(a): price, L-value, H-value
 H_liq.plot_pdf(full=True) # figure 6(b): strategic, liquidity, total
 ```
+Generates...
