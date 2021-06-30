@@ -12,13 +12,13 @@ source("driver.r")
 #    figure 1(b) "housing_hist.pdf"
 #    figure 7(a) "housing_rawrets.pdf"
 #    figure 7(b) "housing_rotrets.pdf"
-source("housing_build.r")
+source("housing_build.r") # loads data.table X
 duration.breaks=seq(1/365,15+1/365,.25)
 estimator(c("t.purchase.yq","T.purchase.yq"),duration.breaks,"housing",X)
 # venture capital: 
 #    figure 2(a) "venture_capital_rawrets.pdf"
 #	 figure 2(b) "venture_capital_hist.pdf"
-source("venture_capital_build.r")
+source("venture_capital_build.r") # loads data.table X
 duration.breaks=seq(.25,2.5,.125)
 estimator(c(),duration.breaks,"venture_capital",X)
 # equipment: 
@@ -26,7 +26,7 @@ estimator(c(),duration.breaks,"venture_capital",X)
 #    figure 3(b) "equipment_hist.pdf"
 #    figure 8(a) "equipment_rawrets.pdf"
 #    figure 8(b) "equipment_rotrets.pdf"
-source("equipment_build.r")
+source("equipment_build.r") # loads data.table X
 duration.breaks=seq(1/365,10+1/365,.25)
 estimator(c("lag_age","age"),duration.breaks,"equipment",X)
 ```
