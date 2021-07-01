@@ -1,8 +1,4 @@
 library(data.table) 
-library(mgcv) 
-library(ggplot2) 
-library(foreign)
-library(lfe)
 
 # year-quarter-month----------------------------------------------------------#
 yqm=function(data.date) {
@@ -19,7 +15,8 @@ if (is.element("housing.RData",list.files())) {
 	if (!is.element("catalyst.RData",list.files())) {
 
 		#load("ztrax.RData") # subsets the orignal fields, then omits NAs 
-		X = data.table(read.csv("housing.csv"))
+		X = data.table(read.csv("housing.csv",stringsAsFactors=FALSE))	
+		X[,documentdate:=as.Date(documentdate,format="%Y-%m-%d")]
 
 		X=subset(X,!is.na(documentdate))
 		X=unique(X,by=c("documentdate","importparcelid","salespriceamount"))
@@ -32,11 +29,11 @@ if (is.element("housing.RData",list.files())) {
 		X=subset(X,n.sales>1) # need at least two transaction
 
         X[,paste("t.buy",c("y","q","m"),sep="."):=yqm(documentdate)]
-        X[,documentdate.lead:=shift(documentdate,type="lead")]
+        X[,documentdate.lead:=shift(documentdate,type="lead"),by=importparcelid]
         X[,paste("T.buy",c("y","q","m"),sep="."):=yqm(documentdate.lead)]
 
 		setkey(X,importparcelid,documentdate) # MUST BE KEYED 
-        X[,duration:=(shift(documentdate,type="lead")-documentdate)/365,by=importparcelid]
+        X[,duration:=as.numeric(documentdate.lead-documentdate)/365]
         X[,logret:=log(shift(salespriceamount,type="lead")/salespriceamount),by=importparcelid]
 
 		# CUTS

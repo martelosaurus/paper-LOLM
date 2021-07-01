@@ -1,5 +1,5 @@
 library(data.table) 
-library(ggplot2) 
+library(mgcv)
 library(lfe)
 
 # estimator--------------------------------------------------------------------#
@@ -11,8 +11,8 @@ estimator=function(dummies,duration.breaks,application,X) {
 	#		Dummies to project out
 	#	duration.breaks : vector
 	# 		x
-	#	application : string
-	#		Name of application (e.g. "venture capital")
+	# 	application : str
+	#		Name of application (e.g. "venture_capital")
 	#	X : data.table
 	#		Data 
 	#
@@ -21,8 +21,9 @@ estimator=function(dummies,duration.breaks,application,X) {
 	# 	This function saves a plot of each of three different estimations and of
 	# 	a simple histogram. The three estimations are as follows:
 	#		Model 1: GAM of log holding period returns on duration
-	#		Model 2:
-	#		Model 3:
+	#		Model 2: GAM of residuals of OLS of log holding period returns on 
+	#				 duration on duration
+	#		Model 3: GAM of residuals of OLS on dummies
 
     if (application=="venture_capital") {
         smpar = 1.
@@ -41,6 +42,7 @@ estimator=function(dummies,duration.breaks,application,X) {
     X=subset(X,duration%between%range(duration.breaks))
 
     # MODEL 1: RAW ------------------------------------------------------------#
+	print("model 1")
     ga=gam(logret ~ s(duration,sp=smpar),data=X) 
     pdf(paste(application,"_rawrets.pdf",sep=""),height=4.5,width=5.5)
     par(mar=c(5.1, 4.1, 2.1, 2.1))
@@ -53,6 +55,7 @@ estimator=function(dummies,duration.breaks,application,X) {
     dev.off()
 
     # MODEL 2: ROTATED --------------------------------------------------------#
+	print("model 2")
     fm = lm(logret~duration,data=X)
     X[,logret_rot:=fm$residuals]
     ga=gam(logret_rot ~ s(duration,sp=smpar),data=X) 
@@ -67,6 +70,7 @@ estimator=function(dummies,duration.breaks,application,X) {
     dev.off()
     
     # MODEL 3: RESIDUALS-------------------------------------------------------#
+	print("model 3")
     modstr=paste("logret~-1|",ifelse(length(dummies)==0,"0",paste(dummies,collapse="+")))
     modfor=as.formula(modstr)
     fm.r=felm(modfor,data=X)

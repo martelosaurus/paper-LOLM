@@ -44,11 +44,10 @@ write.csv(X,file='equipment.csv')
 X = data.table(
 	investment.date=rep(sort(sample(dates,60,replace=TRUE)),each=2),
 	company.id=rep(paste("Company",c("X","Y")),each=60),
-	firm.name=rep(paste("Fund",c("A","B")),60),
-	round.number=rep(rep(seq(1,30,1),each=2),2),
+	firm.name=sample(paste("Fund",LETTERS),120,replace=TRUE),
+	round.number=rep(seq(1,120,1),each=2),
 	amount=sample(seq(1,20,1),120,replace=TRUE),
 	valuation=20+sample(seq(1,20,1),120,replace=TRUE),
 	equity.invested=sample(seq(1,20,1),120,replace=TRUE)
 )
-#write.csv(X,file='venture_capital.csv')
 write.csv(X,file='venture_capital.csv')
