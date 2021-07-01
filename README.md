@@ -3,7 +3,7 @@
 Forthcoming at the  *Journal of Finance*. Most of this code was written by, or in collaboration with, [Brian Waters](https://sites.google.com/site/briantwaters).
 
 ## Empirical work
-Written in R. Requires `data.table`, `ggplot2`, `lfe` and `zoo`. Pseudo-data provided in DataPlots/pseudo-data. For figures, run
+Written in R. Requires `data.table`, `mgcv`, `lfe` and `zoo`. Pseudo-data provided in DataPlots/pseudo-data. For figures, run
 
 ```R
 source("main.r") # loads estimator function
