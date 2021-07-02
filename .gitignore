@@ -1,7 +1,4 @@
+DataPlots/driver.r
 DataPlots/figures
-DataPlots/legacy_scripts
-DataPlots/real_dats
-DataPlots/venture_capital_dats
-DataPlots/legacy_scripts
-DataPlots/real_dats
-DataPlots/venture_capital_raw.csv
+DataPlots/real_data
+DataPlots/pseudo_data/dummy_build.r
