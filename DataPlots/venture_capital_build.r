@@ -147,5 +147,5 @@ if (is.element("venture_capital.RData",list.files())) {
     X[,t.buy.yq:=factor_yq(last.investment.date)]
     X[,T.buy.yq:=factor_yq(investment.date)]
     X[,c("last.investment.date","investment.date"):=NULL]
-    #save(X,file="venture_capital.RData")
+    save(X,file="venture_capital.RData")
 }
