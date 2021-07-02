@@ -10,7 +10,6 @@ from scipy.optimize import root_scalar, root, minimize_scalar
 class Equilibrium:
 
     def __init__(self,b=.1,c=.1,l=.5,r=.5,Q=.7,Y=1.):
-    #def __init__(self,b=.9,c=.2,l=.5,r=.5,Q=.7,Y=1.):
 
         # tolerance (see Te for usage)
         tol = 1.e-5
@@ -23,7 +22,7 @@ class Equilibrium:
         C1 = r*c/(r+b)
         C2 = l*Y/(r+b)
 
-		# terminal conditions
+        # terminal conditions
         VL1 = vH-c 
         VH1 = vH-b*c/(r+b)
 
@@ -31,10 +30,10 @@ class Equilibrium:
         if c>Q*l*Y/r or l>r+b:
             raise Exception('bad parameter regime')
 
-        # 
-        D = lambda t: Q*np.exp(-l*t)+1.-Q     # auxiliary function
-        g = lambda t: Q*np.exp(-l*t)/D(t)     # owner beliefs
-        a = lambda t: b*np.exp(-b*t)         # PDF of liquidity sale
+        # common functions
+        D = lambda t: Q*np.exp(-l*t)+1.-Q   # auxiliary function
+        g = lambda t: Q*np.exp(-l*t)/D(t)   # owner beliefs
+        a = lambda t: b*np.exp(-b*t)        # PDF of liquidity sale
 
         #----------------------------------------------------------------------#
         # special functions 
