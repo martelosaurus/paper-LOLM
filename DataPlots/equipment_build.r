@@ -1,8 +1,4 @@
 library(data.table) 
-library(mgcv) 
-library(ggplot2) 
-library(foreign)
-library(lfe)
 
 if (is.element("equipment.RData",list.files())) {
     load("equipment.RData")

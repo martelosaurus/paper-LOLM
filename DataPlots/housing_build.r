@@ -2,8 +2,7 @@ library(data.table)
 
 # year-quarter-month----------------------------------------------------------#
 yqm=function(data.date) {
-    #
-    #     Convertes a date to a year-quarter-month list
+    # Convertes a date to a year-quarter-month list
     list(year(data.date),quarter(data.date),month(data.date))
 }
 
