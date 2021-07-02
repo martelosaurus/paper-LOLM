@@ -13,15 +13,15 @@ if (is.element("housing.RData",list.files())) {
     # load the "catalyst"
     if (!is.element("catalyst.RData",list.files())) {
 
-		# load
+        # load
         X = data.table(read.csv("housing.csv",stringsAsFactors=FALSE))    
         X[,documentdate:=as.Date(documentdate,format="%Y-%m-%d")]
 
-		# subset fields
+        # subset fields
         X=subset(X,!is.na(documentdate))
         X=unique(X,by=c("documentdate","importparcelid","salespriceamount"))
 
-		# no room additions
+        # no room additions
         X[,minmaxsqft:=max(sqft)-min(sqft),by=importparcelid]
         X=subset(X,minmaxsqft==0)
 
@@ -30,12 +30,12 @@ if (is.element("housing.RData",list.files())) {
         X[,n.sales:=.N,by=importparcelid]
         X=subset(X,n.sales>1) # need at least two transaction
 
-		# compute purchase yearxquarter dummies
+        # compute purchase yearxquarter dummies
         X[,paste("t.buy",c("y","q","m"),sep="."):=yqm(documentdate)]
         X[,documentdate.lead:=shift(documentdate,type="lead"),by=importparcelid]
         X[,paste("T.buy",c("y","q","m"),sep="."):=yqm(documentdate.lead)]
 
-		# compute duration and log return
+        # compute duration and log return
         setkey(X,importparcelid,documentdate) # MUST BE KEYED 
         X[,duration:=as.numeric(documentdate.lead-documentdate)/365]
         X[,logret:=log(shift(salespriceamount,type="lead")/salespriceamount),by=importparcelid]
@@ -55,6 +55,6 @@ if (is.element("housing.RData",list.files())) {
     # create duration bins
     X[,duration:=as.numeric(duration)]
 
-	# drop
+    # drop
     save(X,file="housing.RData")
 }

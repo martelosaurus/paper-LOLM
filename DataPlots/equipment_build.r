@@ -37,7 +37,7 @@ if (is.element("equipment.RData",list.files())) {
     X[,duration := as.numeric(date-lag_date)/365]    
     X[,logret:=log(auction_price/lag_price)]
 
-	# final cuts
+    # final cuts
     X=subset(X,country_code=="US")
     X=subset(X,duration>0)
     X[,n.sales:=.N,by=.(modelid)]
