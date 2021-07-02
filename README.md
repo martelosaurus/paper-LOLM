@@ -17,7 +17,7 @@ duration_breaks=seq(1/365,15+1/365,.25)
 estimator(c("t.buy.yq","T.buy.yq"),duration_breaks,"housing",X)
 # venture capital: 
 #    figure 2(a) "venture_capital_rawrets.pdf"
-#	 figure 2(b) "venture_capital_hist.pdf"
+#    figure 2(b) "venture_capital_hist.pdf"
 # make sure that "venture_capital.csv" is saved in the working directory
 source("venture_capital_build.r") # loads data.table X
 duration_breaks=seq(.25,2.5,.125)
