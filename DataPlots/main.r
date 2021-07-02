@@ -3,7 +3,7 @@ library(mgcv)
 library(lfe)
 
 # estimator--------------------------------------------------------------------#
-estimator=function(dummies,duration.breaks,application,X) {
+estimator=function(dummies,duration.breaks,application,X,smpar=10) {
 	#
 	#	Parameters
 	#	----------
@@ -15,7 +15,8 @@ estimator=function(dummies,duration.breaks,application,X) {
 	#		Name of application (e.g. "venture_capital")
 	#	X : data.table
 	#		Data 
-	#
+	#	smpar : float
+	#		GA parameter
 	#	Notes
 	#	-----
 	# 	This function saves a plot of each of three different estimations and of
@@ -25,20 +26,12 @@ estimator=function(dummies,duration.breaks,application,X) {
 	#				 duration on duration
 	#		Model 3: GAM of residuals of OLS on dummies
 
-    if (application=="venture_capital") {
-        smpar = 1.
-        X=subset(X,duration>.25)
-    } else {
-        smpar = 10
-    }
-
     title=gsub("_"," ",application,fixed=TRUE)
 
     # factorize the dummies
 	X[,paste(dummies):=lapply(.SD[,dummies,with=FALSE],factor)]	
 
     # truncate the sample
-    X=subset(X,duration>0)
     X=subset(X,duration%between%range(duration.breaks))
 
     # MODEL 1: RAW ------------------------------------------------------------#

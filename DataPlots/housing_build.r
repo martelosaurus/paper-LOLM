@@ -45,8 +45,6 @@ if (is.element("housing.RData",list.files())) {
 	# load the "catalyst" 
 	load("catalyst.RData")
 
-	X[,logret:=log(logret)]
-
     # manually factor returns
     X[,t.buy.yq:=factor(t.buy.y):factor(t.buy.q)]
 	X[,T.buy.yq:=factor(T.buy.y):factor(T.buy.q)]

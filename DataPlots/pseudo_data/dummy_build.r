@@ -16,7 +16,7 @@ X = data.table(
 	sqft=rep(sample(seq(1000,9999,1),40,replace=TRUE),3),
 	documentdate=sample(dates,120,replace=TRUE)
 )
-write.csv(X,file='housing.csv')
+write.csv(X,file='housing.csv',row.names=FALSE)
 
 # ------------------------------------------------------------------------------
 # EQUIPMENT
@@ -35,19 +35,22 @@ X = data.table(
 	country_code=rep("US",120)
 )
 X[,start_date:=format(date,"%Y%m%d")]
-write.csv(X,file='equipment.csv')
+write.csv(X,file='equipment.csv',row.names=FALSE)
 
 # ------------------------------------------------------------------------------
 # VENTURE CAPITAL
 # There are two companies, X and Y. There are two funds, A and B which invest in
 # each company in each of 30 rounds.
+n_com = 25 	# number of companies
+n_fun = 10 	# number of funds
+n_rnd = 10  # number of rounds
 X = data.table(
-	investment.date=rep(sort(sample(dates,60,replace=TRUE)),each=2),
-	company.id=rep(paste("Company",c("X","Y")),each=60),
-	firm.name=sample(paste("Fund",LETTERS),120,replace=TRUE),
-	round.number=rep(seq(1,120,1),each=2),
-	amount=sample(seq(1,20,1),120,replace=TRUE),
-	valuation=20+sample(seq(1,20,1),120,replace=TRUE),
-	equity.invested=sample(seq(1,20,1),120,replace=TRUE)
+	investment.date=rep(sort(sample(dates,n_com*n_rnd)),each=n_fun),
+	company.id=rep(paste("Company",LETTERS[1:n_com]),each=n_fun*n_rnd),
+	firm.name=rep(paste("Fund",seq(1,n_fun,1)),n_com*n_rnd),
+	round.number=rep(rep(seq(1,n_rnd,1),each=n_fun),n_com),
+	amount=sample(seq(1,10,1),n_com*n_fun*n_rnd,replace=TRUE),
+	valuation=20+sample(seq(1,20,1),n_com*n_fun*n_rnd,replace=TRUE)
 )
-write.csv(X,file='venture_capital.csv')
+X[,equity.invested:=shift(cumsum(amount),fill=1),by=.(company.id,firm.name)]
+write.csv(X,file='venture_capital.csv',row.names=FALSE)

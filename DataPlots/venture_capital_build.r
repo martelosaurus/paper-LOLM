@@ -132,7 +132,7 @@ if (is.element("venture_capital.RData",list.files())) {
 
 	# compute log return and duration, then order by duration
 	X[,logret:=log(cum.Return/last.cum.Return)] 
-	X[,duration:=as.numeric(investment.date-last.investment.date)]
+	X[,duration:=as.numeric(investment.date-last.investment.date)/365]
 	setorder(X,duration)
 
 	# keep non-zero durations
