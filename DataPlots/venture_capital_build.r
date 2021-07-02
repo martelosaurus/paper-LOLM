@@ -50,7 +50,6 @@ if (is.element("venture_capital.RData",list.files())) {
     X[, nleads := NULL]
 
     setkey(X, company.id, round.number)
-    write.csv(X,file="intermediate.csv")
 
     # purge remaining unused fields
     X[, firm.name := NULL] # removing adds a bunch of obs
