@@ -5,7 +5,7 @@ if (is.element("equipment.RData",list.files())) {
 } else {
 
     # load
-    X=data.table(read.csv("equipment.csv"))    
+	load("equipment_raw.RData")
 
     # clean-up
     X=subset(X,!is.na(year_built)&!is.na(start_date))

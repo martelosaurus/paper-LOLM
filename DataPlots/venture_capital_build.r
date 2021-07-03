@@ -7,7 +7,7 @@ if (is.element("venture_capital.RData",list.files())) {
 
     # --------------------------------------------------------------------------
     # load and clean data
-    X=data.table(read.csv("venture_capital.csv",stringsAsFactors=FALSE))
+	load("venture_capital_raw.RData")
 
     # format date 
     X[,investment.date:=as.Date(investment.date,format="%Y-%m-%d")]

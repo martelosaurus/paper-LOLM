@@ -1,4 +1,7 @@
-DataPlots/figures
 DataPlots/real_data
 DataPlots/driver.r
+DataPlots/housing.RData
+DataPlots/catalyst.RData
+DataPlots/equipment.RData
+DataPlots/venture_capital.RData
 DataPlots/pseudo_data/dummy_build.r

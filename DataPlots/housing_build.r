@@ -14,7 +14,7 @@ if (is.element("housing.RData",list.files())) {
     if (!is.element("catalyst.RData",list.files())) {
 
         # load
-        X = data.table(read.csv("housing.csv",stringsAsFactors=FALSE))    
+		load("housing_raw.RData")
         X[,documentdate:=as.Date(documentdate,format="%Y-%m-%d")]
 
         # subset fields
