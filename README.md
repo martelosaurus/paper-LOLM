@@ -11,14 +11,14 @@ source("main.r") # loads estimator function
 #    figure 1(b) "housing_hist.pdf"
 #    figure 7(a) "housing_rawrets.pdf"
 #    figure 7(b) "housing_rotrets.pdf"
-# make sure that "housing.csv" is saved in the working directory
+# make sure that "housing.RData" is saved in the working directory
 source("housing_build.r") # loads data.table X
 duration_breaks=seq(1/365,15+1/365,.25)
 estimator(c("t.buy.yq","T.buy.yq"),duration_breaks,"housing",X)
 # venture capital: 
 #    figure 2(a) "venture_capital_rawrets.pdf"
 #    figure 2(b) "venture_capital_hist.pdf"
-# make sure that "venture_capital.csv" is saved in the working directory
+# make sure that "venture_capital.RData" is saved in the working directory
 source("venture_capital_build.r") # loads data.table X
 duration_breaks=seq(.25,2.5,.125)
 estimator(c(),duration_breaks,"venture_capital",X,smpar=1.)
@@ -27,7 +27,7 @@ estimator(c(),duration_breaks,"venture_capital",X,smpar=1.)
 #    figure 3(b) "equipment_hist.pdf"
 #    figure 8(a) "equipment_rawrets.pdf"
 #    figure 8(b) "equipment_rotrets.pdf"
-# make sure that "equipment.csv" is saved in the working directory
+# make sure that "equipment.RData" is saved in the working directory
 source("equipment_build.r") # loads data.table X
 duration_breaks=seq(1/365,10+1/365,.25)
 estimator(c("lag_age","age"),duration_breaks,"equipment",X)
