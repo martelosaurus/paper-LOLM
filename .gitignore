@@ -5,3 +5,6 @@ DataPlots/catalyst.RData
 DataPlots/equipment.RData
 DataPlots/venture_capital.RData
 DataPlots/pseudo_data/dummy_build.r
+DataPlots/figures
+ModelPlots/figures
+
